@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The SKiP/SH Model</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Space+Mono:wght@400;700&family=Spline+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0c0a0f;
+    --panel:#15121c;
+    --panel-2:#1c1826;
+    --ink:#ece8f5;
+    --dim:#9a92ad;
+    --line:#2c2638;
+    --acid:#c6ff4a;       /* strong / good */
+    --rose:#ff5d73;       /* sacrificed */
+    --amber:#ffb648;      /* dagger / hidden-axis tax */
+    --cyan:#54e0d8;       /* balanced */
+    --violet:#9d7bff;     /* accent */
+    --k:#54e0d8; --p:#9d7bff; --s:#ffb648;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:
+      radial-gradient(900px 600px at 85% -10%, rgba(157,123,255,.18), transparent 60%),
+      radial-gradient(700px 500px at -10% 20%, rgba(84,224,216,.12), transparent 55%),
+      var(--bg);
+    color:var(--ink);
+    font-family:'Spline Sans',sans-serif;
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+    overflow-x:hidden;
+  }
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  .grain{position:fixed;inset:0;pointer-events:none;opacity:.04;z-index:999;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  /* ---------- HERO ---------- */
+  header{padding:78px 0 30px;position:relative}
+  .kicker{font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.32em;
+    text-transform:uppercase;color:var(--violet);margin-bottom:22px}
+  h1{font-family:'Fraunces',serif;font-weight:900;line-height:.92;
+    font-size:clamp(3rem,9vw,6.6rem);letter-spacing:-.02em}
+  h1 .slash{color:var(--amber)}
+  h1 .lower{font-style:italic;font-weight:400}
+  .sub{font-size:clamp(1.05rem,2vw,1.3rem);color:var(--dim);max-width:640px;margin-top:24px}
+  .sub b{color:var(--ink);font-weight:600}
+
+  .eqn{display:flex;flex-wrap:wrap;gap:10px;margin-top:38px;font-family:'Space Mono',monospace;font-size:.85rem}
+  .chip{border:1px solid var(--line);border-radius:999px;padding:8px 15px;background:var(--panel);
+    display:flex;align-items:center;gap:8px;animation:rise .7s both}
+  .chip .dot{width:9px;height:9px;border-radius:50%}
+  .chip.k .dot{background:var(--k)} .chip.p .dot{background:var(--p)} .chip.s .dot{background:var(--s)}
+  .chip.hid{border-style:dashed;color:var(--amber)}
+  .chip:nth-child(1){animation-delay:.05s}.chip:nth-child(2){animation-delay:.12s}
+  .chip:nth-child(3){animation-delay:.19s}.chip:nth-child(4){animation-delay:.30s}
+  .chip:nth-child(5){animation-delay:.37s}
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+  /* ---------- SECTIONS ---------- */
+  section{padding:54px 0;border-top:1px solid var(--line)}
+  .sec-tag{font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.28em;
+    text-transform:uppercase;color:var(--dim);margin-bottom:14px}
+  h2{font-family:'Fraunces',serif;font-weight:600;font-size:clamp(1.7rem,4vw,2.8rem);
+    letter-spacing:-.01em;margin-bottom:18px}
+  h2 em{font-style:italic;color:var(--amber)}
+  p.lede{color:var(--dim);max-width:720px;font-size:1.08rem}
+  p.lede b{color:var(--ink);font-weight:600}
+
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:24px;position:relative;overflow:hidden}
+  .card .axis{font-family:'Space Mono',monospace;font-size:2.4rem;font-weight:700}
+  .card.k .axis{color:var(--k)} .card.p .axis{color:var(--p)} .card.s .axis{color:var(--s)}
+  .card h3{font-family:'Fraunces',serif;font-size:1.25rem;font-weight:600;margin:6px 0 10px}
+  .card p{font-size:.94rem;color:var(--dim)}
+  .card::after{content:"";position:absolute;left:0;bottom:0;height:3px;width:100%}
+  .card.k::after{background:var(--k)} .card.p::after{background:var(--p)} .card.s::after{background:var(--s)}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}
+  .hcard{background:linear-gradient(160deg,var(--panel-2),var(--panel));border:1px solid var(--line);
+    border-left:3px solid var(--amber);border-radius:14px;padding:26px}
+  .hcard .tag{font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.2em;color:var(--amber);text-transform:uppercase}
+  .hcard h3{font-family:'Fraunces',serif;font-size:1.5rem;font-weight:600;margin:8px 0 10px}
+  .hcard p{color:var(--dim);font-size:.97rem}
+
+  .punch{margin-top:34px;background:
+      linear-gradient(110deg, rgba(255,182,72,.12), rgba(255,93,115,.08));
+    border:1px solid rgba(255,182,72,.4);border-radius:16px;padding:30px 32px}
+  .punch .tag{font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.22em;
+    text-transform:uppercase;color:var(--amber)}
+  .punch p{font-family:'Fraunces',serif;font-size:clamp(1.2rem,2.6vw,1.7rem);font-weight:600;
+    line-height:1.35;margin-top:10px}
+  .punch p em{font-style:italic;color:var(--amber)}
+
+  /* ---------- PLOT ---------- */
+  .plotwrap{margin-top:34px;background:var(--panel);border:1px solid var(--line);border-radius:18px;
+    padding:26px;display:grid;grid-template-columns:1fr 300px;gap:26px}
+  .controls{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:18px}
+  .ctl{font-family:'Space Mono',monospace;font-size:.74rem;border:1px solid var(--line);
+    background:var(--panel-2);color:var(--dim);padding:7px 13px;border-radius:999px;cursor:pointer;
+    transition:.18s;user-select:none}
+  .ctl:hover{color:var(--ink);border-color:var(--violet)}
+  .ctl.on{background:var(--violet);color:#15101f;border-color:var(--violet);font-weight:700}
+  .ctl.fam{display:flex;align-items:center;gap:7px}
+  .ctl.fam .sw{width:10px;height:10px;border-radius:2px}
+  svg{width:100%;height:auto;display:block;touch-action:none}
+  .axis-lbl{font-family:'Space Mono',monospace;font-size:11px;fill:var(--dim);letter-spacing:.12em}
+  .axis-lbl.big{font-size:13px;font-weight:700}
+  .gridline{stroke:var(--line);stroke-width:1}
+  .pt{cursor:pointer;transition:.15s}
+  .pt:hover{stroke:#fff;stroke-width:2}
+  .ptlbl{font-family:'Space Mono',monospace;font-size:9px;fill:var(--ink);pointer-events:none}
+  .info{background:var(--panel-2);border:1px solid var(--line);border-radius:14px;padding:20px;align-self:start;position:sticky;top:20px}
+  .info h4{font-family:'Fraunces',serif;font-size:1.4rem;margin-bottom:2px}
+  .info .fam{font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.12em;color:var(--dim);text-transform:uppercase}
+  .info .reads{margin:14px 0;font-size:.95rem;color:var(--ink);line-height:1.5}
+  .stat{display:flex;align-items:center;gap:10px;margin:9px 0;font-size:.85rem}
+  .stat .lab{width:78px;font-family:'Space Mono',monospace;font-size:.7rem;color:var(--dim);letter-spacing:.08em}
+  .bar{flex:1;height:7px;background:var(--bg);border-radius:4px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:4px}
+  .stat .score{width:14px;text-align:right;font-family:'Space Mono',monospace;font-size:.78rem;font-weight:700;color:var(--ink)}
+  .badge{display:inline-block;font-family:'Space Mono',monospace;font-size:.66rem;padding:2px 8px;border-radius:6px;margin-right:6px;margin-top:6px}
+  .b-std{background:rgba(84,224,216,.15);color:var(--cyan);border:1px solid rgba(84,224,216,.4)}
+  .b-r3{background:rgba(157,123,255,.15);color:var(--violet);border:1px solid rgba(157,123,255,.4)}
+  .b-pre{background:rgba(154,146,173,.12);color:var(--dim);border:1px solid var(--line)}
+  .hint{font-size:.78rem;color:var(--dim);margin-top:14px;font-style:italic}
+
+  /* ---------- TABLE ---------- */
+  .tablewrap{margin-top:30px;overflow-x:auto;border:1px solid var(--line);border-radius:16px}
+  table{border-collapse:collapse;width:100%;min-width:860px;font-size:.86rem}
+  th,td{padding:11px 13px;text-align:left;border-bottom:1px solid var(--line)}
+  thead th{background:var(--panel-2);font-family:'Space Mono',monospace;font-size:.68rem;
+    letter-spacing:.1em;text-transform:uppercase;color:var(--dim);position:sticky;top:0;cursor:pointer;white-space:nowrap}
+  thead th:hover{color:var(--ink)}
+  tbody tr{transition:.12s}
+  tbody tr:hover{background:var(--panel-2)}
+  td.name{font-weight:600;white-space:nowrap}
+  td.num{font-family:'Space Mono',monospace;font-size:.8rem;color:var(--dim);text-align:right}
+  td.scorecell{text-align:center;padding:8px 10px}
+  .schip{display:inline-flex;align-items:center;justify-content:center;position:relative;
+    width:34px;height:20px;border-radius:5px;background:var(--bg);overflow:hidden}
+  .schip::before{content:"";position:absolute;left:0;top:0;height:100%;width:var(--w);
+    background:var(--c);opacity:.32}
+  .schip b{position:relative;font-family:'Space Mono',monospace;font-size:.78rem;font-weight:700;color:var(--ink)}
+  .dag{color:var(--amber);font-weight:700}
+  .famdot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px;vertical-align:middle}
+  .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;font-size:.78rem;color:var(--dim);font-family:'Space Mono',monospace}
+  .legend span{display:flex;align-items:center;gap:6px}
+
+  /* ---------- SHORTHAND ---------- */
+  .short{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px}
+  .scard{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px}
+  .scard .n{font-family:'Space Mono',monospace;font-size:.72rem;color:var(--violet);letter-spacing:.1em}
+  .scard h4{font-family:'Fraunces',serif;font-size:1.15rem;margin:8px 0 8px}
+  .scard p{font-size:.88rem;color:var(--dim)}
+  .scard .pick{font-weight:600;color:var(--ink)}
+
+footer{padding:46px 0 70px;border-top:1px solid var(--line);color:var(--dim);font-size:.82rem}
+  footer p + p{margin-top:14px}
+  footer code{font-family:'Space Mono',monospace;color:var(--violet)}
+  a{color:var(--cyan)}
+
+  @media(max-width:860px){
+    .grid3,.short{grid-template-columns:1fr}
+    .grid2{grid-template-columns:1fr}
+    .plotwrap{grid-template-columns:1fr}
+    .info{position:static}
+  }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<header>
+  <div class="wrap">
+    <div class="kicker">A tradeoff framework for post-quantum cryptography</div>
+    <h1>The SK<span class="lower">i</span>P<span class="slash">/</span>SH<br>Model</h1>
+    <p class="sub">Classical primitives gave you everything at once. Post-quantum schemes don't. Like CAP for databases, you <b>pick two</b> of the visible triangle and <b>SKiP</b> the third — and two hidden axes decide whether you can trust what's left.</p>
+    <div class="eqn">
+      <div class="chip k"><span class="dot"></span>S · Speed</div>
+      <div class="chip k"><span class="dot"></span>K · Key size</div>
+      <div class="chip p"><span class="dot"></span>P · Payload size</div>
+      <div class="chip hid">＋ Sturdiness</div>
+      <div class="chip hid">＋ Hardness</div>
+    </div>
+  </div>
+</header>
+
+<!-- VISIBLE TRIANGLE -->
+<section id="triangle">
+  <div class="wrap">
+    <div class="sec-tag">Tier 1 · the visible triangle</div>
+    <h2>SKiP — pick two, sacrifice one</h2>
+    <p class="lede">Three engineering properties trade off against one another. A scheme can excel at two of them; whichever it can't deliver is the one it <b>SKiP</b>s.</p>
+    <div class="grid3">
+      <div class="card s">
+        <div class="axis">S</div>
+        <h3>Speed</h3>
+        <p>Cycle cost — treated as a <i>vector</i> across keygen / sign / verify (or encaps / decaps), never a scalar. Falcon is fast to sign and verify but slow to keygen; FAEST is the inverse. Where a scheme lands depends on which phase your workload stresses.</p>
+      </div>
+      <div class="card k">
+        <div class="axis">K</div>
+        <h3>Key size</h3>
+        <p>Public + private key bytes. The UOV family pays here brutally — public keys from tens of kilobytes to over a megabyte — to buy a tiny signature.</p>
+      </div>
+      <div class="card p">
+        <div class="axis">P</div>
+        <h3>Payload size</h3>
+        <p>Signature bytes, or KEM ciphertext bytes. Hash- and MPC-in-the-Head schemes blow up here: SLH-DSA and FAEST run into the tens of kilobytes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HIDDEN AXES -->
+<section id="hidden">
+  <div class="wrap">
+    <div class="sec-tag">Tier 2 · the two hidden axes</div>
+    <h2>S + H — what it <em>costs you to trust</em></h2>
+    <p class="lede">SKiP describes what a scheme <i>looks like</i>. Two further axes describe what it costs to <b>trust</b> — and they're where the bill comes due when a scheme appears to win all three visible axes at once.</p>
+    <div class="grid2">
+      <div class="hcard">
+        <div class="tag">S · was the “†” dagger</div>
+        <h3>Sturdiness</h3>
+        <p>Implementation robustness. Can it be built fast <i>and</i> safely? Constant-time discipline, freedom from floating-point fragility, side-channel resistance. Falcon is low-sturdiness (FP Gaussian sampling); SQIsign carries an open constant-time-signing problem; HAWK is essentially the un-daggered Falcon (integer-only); SLH-DSA is maximally sturdy (hash-only, no secret-dependent branching).</p>
+      </div>
+      <div class="hcard">
+        <div class="tag">H · was the “‡” mark</div>
+        <h3>Hardness</h3>
+        <p>Cryptographic robustness — strength and maturity of the underlying assumption. SNOVA took the worst hit: Beullens' forgery attacks cut its margin by 2^8–2^39 and pushed some parameter sets below NIST's threshold, forcing a Round 2 rescue — it scores below MAYO, which weathered the same era of multivariate cryptanalysis (NIST IR 8610) without a parameter change. MQOM's ROM/QROM proofs are still maturing; isogeny &amp; young lattice schemes have a thin analyst pool. SDitH, FAEST (AES-hardness), classic hash-based, and code-based schemes anchor the conservative end.</p>
+      </div>
+    </div>
+    <div class="punch">
+      <div class="tag">the central lesson</div>
+      <p>If a scheme seems to win all three SKiP axes, the cost hasn't vanished — it has moved off-triangle. The scheme is <em>borrowing against Sturdiness or Hardness.</em> The framework tells you where to look for the catch.</p>
+    </div>
+  </div>
+</section>
+
+<!-- INTERACTIVE PLOT -->
+<section id="plot">
+  <div class="wrap">
+    <div class="sec-tag">candidate placement · interactive</div>
+    <h2>Where the schemes land</h2>
+    <p class="lede">Plotting <b>combined K+P size</b> (log bytes) against <b>relative sign / encaps cost</b> (log, lower-left is better). Dot fill = family. Tap any point for its SKiP/SH read. Covers the standardized FIPS set plus all nine Round&nbsp;3 additional-signature candidates.</p>
+    <div class="plotwrap">
+      <div>
+        <div class="controls" id="famControls"></div>
+        <svg id="chart" viewBox="0 0 580 560" aria-label="size vs speed scatter"></svg>
+      </div>
+      <div class="info" id="info">
+        <div class="fam">tap a point</div>
+        <h4>Select a scheme</h4>
+        <p class="reads" style="color:var(--dim)">Each point carries its two visible coordinates plus the hidden-axis read — the reason it sits where it does and what it's paying for.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TABLE -->
+<section id="table">
+  <div class="wrap">
+    <div class="sec-tag">full reference · click headers to sort</div>
+    <h2>The whole field, scored</h2>
+    <p class="lede">Sizes are NIST security Level&nbsp;1 (≈128-bit), representative parameter sets. Each axis is scored <b>1–7</b>, where <b>7</b> is best (smallest / fastest / most conservative / most robust) and <b>1</b> is worst. Bars fill and warm from red&nbsp;(1) through amber&nbsp;(4) to green&nbsp;(7). <b class="dag">†</b> flags a fragile or not-yet-constant-time implementation.</p>
+    <div class="tablewrap">
+      <table id="tbl">
+        <thead><tr>
+          <th data-k="name">Scheme</th>
+          <th data-k="fam">Family</th>
+          <th data-k="status">Status</th>
+          <th data-k="pk" class="num">PK (B)</th>
+          <th data-k="sig" class="num">Sig/CT (B)</th>
+          <th data-k="K">K</th>
+          <th data-k="P">P</th>
+          <th data-k="S">S</th>
+          <th data-k="St">Sturdy</th>
+          <th data-k="H">Hard</th>
+          <th data-k="reads">Reads as</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+    <div class="legend">
+      <span><i class="famdot" style="background:var(--cyan)"></i>Lattice</span>
+      <span><i class="famdot" style="background:var(--rose)"></i>Hash</span>
+      <span><i class="famdot" style="background:var(--amber)"></i>Multivariate / UOV</span>
+      <span><i class="famdot" style="background:var(--violet)"></i>MPC-in-the-Head</span>
+      <span><i class="famdot" style="background:var(--acid)"></i>Isogeny</span>
+      <span><i class="famdot" style="background:#7a90ff"></i>Code</span>
+      <span><i class="famdot" style="background:#666"></i>Pre-quantum</span>
+    </div>
+  </div>
+</section>
+
+<!-- SHORTHAND -->
+<section id="short">
+  <div class="wrap">
+    <div class="sec-tag">selection shorthand</div>
+    <h2>Picking for a deployment</h2>
+    <div class="short">
+      <div class="scard">
+        <div class="n">01 · balanced workhorse</div>
+        <h4>Need all three "okay"?</h4>
+        <p><span class="pick">ML-DSA / ML-KEM.</span> The centroid — nothing tiny, nothing huge, fast, and high on <i>both</i> hidden axes. That dual-high is exactly why they're the FIPS primary picks.</p>
+      </div>
+      <div class="scard">
+        <div class="n">02 · max the hidden axes</div>
+        <h4>Long-lived roots, can't be wrong?</h4>
+        <p><span class="pick">SLH-DSA / Classic McEliece / FAEST.</span> Conservative assumptions, sturdy implementations. You pay in payload or key size — accept it for trust anchors.</p>
+      </div>
+      <div class="scard">
+        <div class="n">03 · byte-minimal, debt accepted</div>
+        <h4>Bandwidth is everything?</h4>
+        <p><span class="pick">UOV / SQIsign / MAYO.</span> Tiny on the wire — but each picks <i>one</i> of small-key or small-signature, never both, and pays a Hardness or Sturdiness debt (big keys, slow signing, thin margins). MAYO's two parameter sets are the same scheme sliding along that K↔P edge. Use where the savings justify the risk.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p>The visible triangle behaves like CAP; the two-tier structure (<code>SKiP</code> + <code>S/H</code>) is the actual insight — it predicts where a too-good scheme is hiding its cost. Standardized set: ML-KEM (FIPS&nbsp;203), ML-DSA (FIPS&nbsp;204), SLH-DSA (FIPS&nbsp;205), FN-DSA/Falcon (draft), stateful hash LMS/XMSS (SP&nbsp;800-208), plus Classic McEliece (selected) and HQC (FIPS draft, 2025) as code-based KEMs; sntrup761 is non-NIST but deployed in OpenSSH. Round&nbsp;3 additional-signature candidates (per NIST IR&nbsp;8610): FAEST, HAWK, MAYO, MQOM, QR-UOV, SDitH, SNOVA, SQIsign, UOV. Sizes are representative Level&nbsp;1 figures and vary by parameter set.</p>
+    <p>Licensed under the <a href="LICENSE">Apache License 2.0</a>.</p>
+  </div>
+</footer>
+
+<script>
+/* ---------- DATA ----------
+   pk / sig in bytes (Level 1, representative).
+   K/P/S/St/H marks: '+', '~', '-', with optional dagger flag.
+   famKey -> color + label.  */
+const FAM = {
+  lattice:{c:'#54e0d8',label:'Lattice'},
+  hash:{c:'#ff5d73',label:'Hash'},
+  uov:{c:'#ffb648',label:'Multivariate / UOV'},
+  mpc:{c:'#9d7bff',label:'MPC-in-the-Head'},
+  iso:{c:'#c6ff4a',label:'Isogeny'},
+  code:{c:'#7a90ff',label:'Code'},
+  pre:{c:'#666666',label:'Pre-quantum'}
+};
+
+const D = [
+  // standardized
+  {name:'ML-DSA-44', fam:'lattice', status:'std', pk:1312, sig:2420,
+    K:4,P:4,S:6,St:6,H:6,dag:false,
+    reads:'The centroid. Nothing small, nothing huge, fast all phases, high on both hidden axes — the FIPS-204 workhorse.'},
+  {name:'ML-KEM-512', fam:'lattice', status:'std', pk:800, sig:768,
+    K:5,P:5,S:6,St:6,H:6,dag:false,
+    reads:'KEM centroid (sig col = ciphertext). Balanced, sturdy, well-studied — FIPS-203 default.'},
+  {name:'Classic McEliece', fam:'code', status:'std?', pk:261120, sig:96,
+    K:1,P:7,S:3,St:7,H:7,dag:false,
+    reads:'(mceliece348864) ~96 B ciphertext, the most conservative assumption in the field — 45+ years with zero cryptanalytic progress — but two SKiP axes bite. Key is catastrophic (~261 KB public key), and Speed is a vector: keygen and encaps are fast (hundreds of µs) while decapsulation is ~10 ms, roughly 10–100× slower. The S score reflects that decaps-dominated profile. Max Hardness, max Sturdiness, monstrous key, slow decaps. NIST selected it for standardization.'},
+  {name:'HQC-128', fam:'code', status:'std', pk:2249, sig:4497,
+    K:4,P:3,S:6,St:6,H:6,dag:false,
+    reads:'(ciphertext col = ct) Quasi-cyclic codes tame McEliece\u2019s key to ~2.2 KB at the cost of a larger ~4.5 KB ciphertext and ~2x-larger transcript than ML-KEM. NIST\u2019s code-based backup pick (FIPS draft, 2025) for assumption diversity against lattices.'},
+  {name:'sntrup761', fam:'lattice', status:'depl', pk:1158, sig:1039,
+    K:4,P:4,S:6,St:6,H:5,dag:false,
+    reads:'Streamlined NTRU Prime. Balanced like ML-KEM but on a deliberately \u201Cless-structured\u201D NTRU lattice to dodge ring/cyclotomic attack surface \u2014 a Sturdiness/conservatism hedge. Not a NIST pick, but deployed by default in OpenSSH.'},
+  {name:'Falcon-512', fam:'lattice', status:'std*', pk:897, sig:690,
+    K:5,P:6,S:5,St:2,H:6,dag:true,
+    reads:'Small key+sig, fast sign/verify \u2014 but \u2020: floating-point Gaussian sampling is fragile and side-channel prone, and keygen is ~19M cycles. The low Sturdiness score is the whole story. Draft FN-DSA standard.'},
+  {name:'SLH-DSA-128f', fam:'hash', status:'std', pk:32, sig:17088,
+    K:7,P:1,S:3,St:7,H:7,dag:false,
+    reads:'Tiny 32 B key, but SKiPs payload hard (~17 KB) and signing is slow. Maximal on both hidden axes \u2014 pure hash, the trust anchor. FIPS-205.'},
+  // round 3 additional signatures
+  {name:'HAWK-512', fam:'lattice', status:'r3', pk:1024, sig:555,
+    K:5,P:6,S:6,St:6,H:4,dag:false,
+    reads:'The un-daggered Falcon: integer-only arithmetic, compact + fast, sturdy. Hidden cost is Hardness \u2014 younger lattice analysis, smaller analyst pool.'},
+  {name:'SQIsign-I', fam:'iso', status:'r3', pk:64, sig:148,
+    K:7,P:6,S:1,St:3,H:4,dag:true,
+    reads:'Smallest K+P in the field (~212 B combined). SKiPs Speed hard (very high latency) and \u2020: constant-time signing still open; thin analyst pool on the endomorphism-ring assumption.'},
+  {name:'UOV-Ip', fam:'uov', status:'r3', pk:278432, sig:128,
+    K:1,P:7,S:7,St:6,H:6,dag:false,
+    reads:'~128 B signature, very fast, 20+ years of cryptanalysis \u2014 the most studied multivariate assumption \u2014 but SKiPs Key catastrophically (~278 KB public key). Great when keys can be pre-distributed.'},
+  {name:'MAYO-1', fam:'uov', status:'r3', pk:1168, sig:454,
+    K:4,P:6,S:6,St:5,H:4,dag:false,
+    reads:'The small-key MAYO point (n=86,m=78,o=8,k=10): ~1.2 KB key, 454 B signature \u2014 still smaller than Falcon-512\u2019s sig. Trades a bigger signature for a far smaller key than MAYO-2. Hardness debt: thin multivariate margin (IR 8610), but it survived Round 2 without a parameter rescue.'},
+  {name:'MAYO-2', fam:'uov', status:'r3', pk:4912, sig:186,
+    K:3,P:6,S:6,St:5,H:4,dag:false,
+    reads:'The small-signature MAYO point (n=81,m=64,o=17,k=4): tiny 186 B signature, but the key grows to ~4.9 KB. MAYO\u2019s knob is K\u2194P: shrink the signature and the key grows. Off-triangle catch is the same thin multivariate margin (IR 8610).'},
+  {name:'SNOVA', fam:'uov', status:'r3', pk:9826, sig:248,
+    K:5,P:6,S:6,St:3,H:2,dag:true,
+    reads:'Beats MAYO on the visible axes \u2014 small key and small signature at once \u2014 but pays for it on both hidden axes. Beullens\u2019 forgery attacks cut its security margin by 2^8\u20132^39 and some parameter sets dropped below NIST\u2019s threshold; the team needed a Round 2 parameter rescue. Weak-key classes also dent Sturdiness. The clearest \u201Cbought its size with Hardness debt\u201D case in the field.'},
+  {name:'QR-UOV', fam:'uov', status:'r3', pk:24114, sig:331,
+    K:2,P:6,S:6,St:6,H:5,dag:false,
+    reads:'Quotient-ring UOV: shrinks the classic UOV key (~24 KB vs hundreds of KB) while keeping a small ~331 B signature. A middle-ground multivariate bet \u2014 more conservative than MAYO/SNOVA, heavier key.'},
+  {name:'FAEST-128f', fam:'mpc', status:'r3', pk:32, sig:6336,
+    K:7,P:2,S:2,St:6,H:7,dag:false,
+    reads:'Security reduces to AES \u2014 on the same footing as SLH-DSA, maximally conservative. Tiny 32 B key, but SKiPs payload (~6 KB) and signing is very slow (~28M cycles).'},
+  {name:'MQOM', fam:'mpc', status:'r3', pk:59, sig:2820,
+    K:7,P:4,S:4,St:6,H:5,dag:false,
+    reads:'Smallest combined pk+sig of any MPCitH candidate, over the MQ problem. Caveat: ROM/QROM proofs still maturing \u2014 a moderate Hardness mark.'},
+  {name:'SDitH', fam:'mpc', status:'r3', pk:120, sig:8241,
+    K:6,P:1,S:2,St:6,H:6,dag:false,
+    reads:'Syndrome-decoding in the head \u2014 conservative code-based assumption. Pays in payload (~8 KB) and compute, buys high Hardness.'},
+  // pre-quantum reference
+  {name:'Ed25519', fam:'pre', status:'pre', pk:32, sig:64,
+    K:7,P:7,S:7,St:7,H:1,dag:false,
+    reads:'The classical "best of all worlds" \u2014 tiny, fast, sturdy. Its only failing axis is Hardness against a quantum adversary (it drops to 1). The baseline everything is measured against.'},
+  {name:'RSA-2048', fam:'pre', status:'pre', pk:256, sig:256,
+    K:6,P:6,S:4,St:6,H:1,dag:false,
+    reads:'Classical balanced point; ~1ms ops. Quantum-broken \u2014 Hardness drops to 1 against Shor \u2014 but the historical reference for "all three at once."'}
+];
+
+/* ---------- PLOT ---------- */
+const chart = document.getElementById('chart');
+const SVGNS='http://www.w3.org/2000/svg';
+const W=580,H=560,PAD={l:64,r:34,t:30,b:58};
+const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
+
+// log scales
+const combined = d=>d.pk+d.sig;
+// rough relative signing cost proxy (lower=faster), hand-ranked since exact cycles vary
+const speedCost = {
+  'ML-DSA-44':1.0,'ML-KEM-512':0.85,'Falcon-512':1.5,'SLH-DSA-128f':4.0,
+  'HAWK-512':1.05,'SQIsign-I':9.0,'UOV-Ip':0.75,'MAYO-1':1.05,'MAYO-2':1.1,'SNOVA':1.2,
+  'QR-UOV':1.3,'FAEST-128f':6.5,'MQOM':2.6,'SDitH':4.5,'Ed25519':0.45,'RSA-2048':2.0,
+  'Classic McEliece':4.0,'HQC-128':1.15,'sntrup761':0.92
+};
+const xVal=d=>Math.log10(combined(d));         // size axis (log bytes)
+const yVal=d=>Math.log10(speedCost[d.name]);    // speed axis (log proxy)
+const xs=D.map(xVal), ys=D.map(yVal);
+const xmin=Math.min(...xs)-0.25, xmax=Math.max(...xs)+0.25;
+const ymin=Math.min(...ys)-0.12, ymax=Math.max(...ys)+0.12;
+const sx=v=>PAD.l+(v-xmin)/(xmax-xmin)*PW;
+const sy=v=>PAD.t+PH-(v-ymin)/(ymax-ymin)*PH;
+
+function el(tag,attrs){const e=document.createElementNS(SVGNS,tag);for(const k in attrs)e.setAttribute(k,attrs[k]);return e;}
+
+let active=new Set(Object.keys(FAM));
+function drawChart(){
+  chart.innerHTML='';
+  // vertical gridlines for size (powers of 10 in bytes)
+  for(let p=1;p<=6;p++){
+    if(p<xmin||p>xmax)continue;
+    const x=sx(p);
+    chart.appendChild(el('line',{x1:x,y1:PAD.t,x2:x,y2:PAD.t+PH,class:'gridline'}));
+    const lbl=el('text',{x:x,y:PAD.t+PH+18,'text-anchor':'middle',class:'axis-lbl'});
+    lbl.textContent=(p>=3?(10**(p-3))+'KB':(10**p)+'B');
+    chart.appendChild(lbl);
+  }
+  // horizontal gridlines for speed proxy (log): mark a few reference multipliers
+  [0.5,1,2,4,8].forEach(mult=>{
+    const lv=Math.log10(mult);
+    if(lv<ymin||lv>ymax)return;
+    const y=sy(lv);
+    chart.appendChild(el('line',{x1:PAD.l,y1:y,x2:PAD.l+PW,y2:y,class:'gridline','stroke-dasharray':'2 5'}));
+    const lbl=el('text',{x:PAD.l-10,y:y+3,'text-anchor':'end',class:'axis-lbl'});
+    lbl.textContent=(mult===1?'1×':mult+'×');
+    chart.appendChild(lbl);
+  });
+  // axis titles
+  const xt=el('text',{x:PAD.l+PW/2,y:H-8,'text-anchor':'middle',class:'axis-lbl big'});
+  xt.textContent='◄ smaller   combined KEY + PAYLOAD   larger ►';chart.appendChild(xt);
+  const yt=el('text',{x:18,y:PAD.t+PH/2,'text-anchor':'middle',class:'axis-lbl big',transform:`rotate(-90 18 ${PAD.t+PH/2})`});
+  yt.textContent='◄ faster   SIGN / ENCAPS COST   slower ►';chart.appendChild(yt);
+
+  // "sweet spot" glow lower-left
+  chart.appendChild(el('rect',{x:PAD.l,y:PAD.t+PH-78,width:108,height:78,fill:'rgba(198,255,74,0.06)',rx:8}));
+
+  // compute positions, then de-collide labels
+  const pts=D.filter(d=>active.has(d.fam)).map(d=>{
+    return {d, x:sx(xVal(d)), y:sy(yVal(d))};
+  });
+  // label placement: start to the right; if it would collide or overflow, flip/stack
+  const placed=[]; // {lx,ly,w,h}
+  const LH=12, charW=5.0;
+  pts.forEach(p=>{
+    const tw=p.d.name.length*charW;
+    // candidate offsets (dx,dy,anchor)
+    const cands=[
+      [11,3,'start'],[ -11,3,'end'],
+      [11,-9,'start'],[-11,-9,'end'],
+      [11,13,'start'],[-11,13,'end'],
+      [0,-13,'middle'],[0,17,'middle']
+    ];
+    let best=cands[0], bestScore=Infinity;
+    for(const [dx,dy,anc] of cands){
+      let lx=p.x+dx, ly=p.y+dy;
+      let x0 = anc==='start'?lx : anc==='end'?lx-tw : lx-tw/2;
+      let x1 = x0+tw;
+      // penalty for overflow + overlap
+      let score=0;
+      if(x0<PAD.l-2) score+=(PAD.l-2-x0)*4;
+      if(x1>PAD.l+PW+30) score+=(x1-(PAD.l+PW+30))*4;
+      if(ly<PAD.t+6) score+=(PAD.t+6-ly)*4;
+      if(ly>PAD.t+PH-2) score+=(ly-(PAD.t+PH-2))*4;
+      for(const q of placed){
+        const ox=Math.max(0,Math.min(x1,q.x1)-Math.max(x0,q.x0));
+        const oy=Math.max(0,Math.min(ly+2,q.y1)-Math.max(ly-LH,q.y0));
+        score+=ox*oy*0.5;
+      }
+      // small preference for right-of-dot
+      score += (dx<0?2:0)+(Math.abs(dy)>10?1:0);
+      if(score<bestScore){bestScore=score;best=[dx,dy,anc,x0,x1,ly];}
+    }
+    const [dx,dy,anc,x0,x1,ly]=best;
+    placed.push({x0,x1,y0:ly-LH,y1:ly+2});
+    p.lx=p.x+dx; p.ly=ly; p.anc=anc;
+    // leader line if label pushed away from dot
+    p.leader = (Math.abs(dx)>11 || Math.abs(dy)>10);
+  });
+
+  pts.forEach(p=>{
+    const d=p.d;
+    const g=el('g',{});
+    if(p.leader){
+      g.appendChild(el('line',{x1:p.x,y1:p.y,x2:p.lx,y2:p.ly-3,
+        stroke:FAM[d.fam].c,'stroke-width':0.6,'stroke-opacity':0.45}));
+    }
+    const c=el('circle',{cx:p.x,cy:p.y,r:7,class:'pt',fill:FAM[d.fam].c,
+      'fill-opacity':d.status==='pre'?0.4:0.85,stroke:d.dag?'#ffb648':'#0c0a0f','stroke-width':d.dag?2:1.2});
+    c.addEventListener('click',()=>{showInfo(d);highlight(p.x,p.y);});
+    c.addEventListener('mouseenter',()=>showInfo(d));
+    g.appendChild(c);
+    const t=el('text',{x:p.lx,y:p.ly,'text-anchor':p.anc,class:'ptlbl'});
+    t.textContent=d.name;g.appendChild(t);
+    chart.appendChild(g);
+  });
+}
+function highlight(x,y){
+  const r=el('circle',{cx:x,cy:y,r:7,fill:'none',stroke:'#fff','stroke-width':2});
+  r.setAttribute('opacity','1');
+  chart.appendChild(r);
+  let o=1; const id=setInterval(()=>{o-=0.06; r.setAttribute('opacity',o);
+    r.setAttribute('r',7+(1-o)*14); if(o<=0){clearInterval(id);r.remove();}},24);
+}
+
+// 1-7 scale: 7 best (acid/green) -> 1 worst (rose/red)
+function scoreColor(n){
+  // ramp red(1) -> amber(4) -> acid(7)
+  const stops=[[255,93,115],[255,140,90],[255,182,72],[210,210,120],[170,220,90],[198,255,74],[180,255,120]];
+  return 'rgb('+stops[Math.max(0,Math.min(6,n-1))].join(',')+')';
+}
+function bar(n){ return {w:(n/7*100)+'%', c:scoreColor(n)}; }
+function showInfo(d){
+  const info=document.getElementById('info');
+  const badge = d.status==='std'||d.status==='std*'
+    ? `<span class="badge b-std">${d.status==='std*'?'FIPS (draft)':'FIPS standard'}</span>`
+    : d.status==='std?' ? `<span class="badge b-std">NIST selected (draft)</span>`
+    : d.status==='depl' ? `<span class="badge b-std">deployed (non-NIST)</span>`
+    : d.status==='r3' ? `<span class="badge b-r3">Round 3 candidate</span>`
+    : `<span class="badge b-pre">pre-quantum ref</span>`;
+  const stat=(lab,n)=>{const b=bar(n);return `<div class="stat"><span class="lab">${lab}</span><span class="bar"><i style="width:${b.w};background:${b.c}"></i></span><span class="score">${n}</span></div>`;};
+  info.innerHTML=`
+    <div class="fam"><i class="famdot" style="background:${FAM[d.fam].c}"></i>${FAM[d.fam].label}</div>
+    <h4>${d.name}${d.dag?' <span class="dag">†</span>':''}</h4>
+    ${badge}
+    <p class="reads">${d.reads}</p>
+    ${stat('Key',d.K)}
+    ${stat('Payload',d.P)}
+    ${stat('Speed',d.S)}
+    ${stat('Sturdy',d.St)}
+    ${stat('Hardness',d.H)}
+    <div class="hint">PK ${d.pk.toLocaleString()} B · Sig/CT ${d.sig.toLocaleString()} B (Level 1)</div>
+  `;
+}
+
+// family toggles
+const fc=document.getElementById('famControls');
+Object.keys(FAM).forEach(k=>{
+  const b=document.createElement('div');
+  b.className='ctl fam on';
+  b.innerHTML=`<span class="sw" style="background:${FAM[k].c}"></span>${FAM[k].label}`;
+  b.onclick=()=>{ if(active.has(k)){active.delete(k);b.classList.remove('on');}
+                 else{active.add(k);b.classList.add('on');} drawChart(); };
+  fc.appendChild(b);
+});
+drawChart();
+
+/* ---------- TABLE ---------- */
+const tbody=document.getElementById('tbody');
+function scoreCell(n){
+  const b=bar(n);
+  return `<td class="scorecell"><span class="schip" style="--w:${b.w};--c:${b.c}"><b>${n}</b></span></td>`;
+}
+function statusLabel(s){return s==='std'?'FIPS':s==='std*'?'FIPS (draft)':s==='std?'?'NIST select':s==='depl'?'deployed':s==='r3'?'Round 3':'pre-Q';}
+function renderTable(rows){
+  tbody.innerHTML='';
+  rows.forEach(d=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td class="name">${d.name}${d.dag?' <span class="dag">†</span>':''}</td>
+      <td><span class="famdot" style="background:${FAM[d.fam].c}"></span>${FAM[d.fam].label}</td>
+      <td style="font-family:'Space Mono';font-size:.72rem;color:var(--dim)">${statusLabel(d.status)}</td>
+      <td class="num">${d.pk.toLocaleString()}</td>
+      <td class="num">${d.sig.toLocaleString()}</td>
+      ${scoreCell(d.K)}
+      ${scoreCell(d.P)}
+      ${scoreCell(d.S)}
+      ${scoreCell(d.St)}
+      ${scoreCell(d.H)}
+      <td style="font-size:.8rem;color:var(--dim);min-width:280px">${d.reads}</td>`;
+    tr.onclick=()=>showInfo(d);
+    tbody.appendChild(tr);
+  });
+}
+renderTable(D);
+
+// sorting
+let sortKey=null,sortDir=1;
+document.querySelectorAll('#tbl thead th').forEach(th=>{
+  th.onclick=()=>{
+    const k=th.dataset.k;
+    sortDir = (sortKey===k)? -sortDir : 1; sortKey=k;
+    const num=['pk','sig'].includes(k);
+    const sorted=[...D].sort((a,b)=>{
+      let va=a[k],vb=b[k];
+      if(num){return (va-vb)*sortDir;}
+      return String(va).localeCompare(String(vb))*sortDir;
+    });
+    renderTable(sorted);
+  };
+});
+</script>
+</body>
+</html>
