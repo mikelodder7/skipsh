@@ -246,7 +246,7 @@ footer{padding:46px 0 70px;border-top:1px solid var(--line);color:var(--dim);fon
   <div class="wrap">
     <div class="sec-tag">candidate placement · interactive</div>
     <h2>Where the schemes land</h2>
-    <p class="lede">Plotting <b>combined K+P size</b> (log bytes) against <b>relative sign / encaps cost</b> (log, lower-left is better). Dot fill = family. Tap any point for its SKiP/SH read. Covers the standardized FIPS set plus all nine Round&nbsp;3 additional-signature candidates.</p>
+    <p class="lede">Plotting <b>combined K+P size</b> (log bytes) against <b>relative sign / encaps cost</b> (log, lower-left is better). Dot fill = family. Tap any point for its SKiP/SH read. Covers the standardized FIPS set, selected ISO KEMs, and all nine Round&nbsp;3 additional-signature candidates.</p>
     <div class="plotwrap">
       <div>
         <div class="controls" id="famControls"></div>
@@ -324,7 +324,7 @@ footer{padding:46px 0 70px;border-top:1px solid var(--line);color:var(--dim);fon
 
 <footer>
   <div class="wrap">
-    <p>The visible triangle behaves like CAP; the two-tier structure (<code>SKiP</code> + <code>S/H</code>) is the actual insight — it predicts where a too-good scheme is hiding its cost. Standardized set: ML-KEM (FIPS&nbsp;203), ML-DSA (FIPS&nbsp;204), SLH-DSA (FIPS&nbsp;205), FN-DSA/Falcon (draft), stateful hash LMS/XMSS (SP&nbsp;800-208), plus Classic McEliece (selected) and HQC (FIPS draft, 2025) as code-based KEMs; sntrup761 is non-NIST but deployed in OpenSSH. Round&nbsp;3 additional-signature candidates (per NIST IR&nbsp;8610): FAEST, HAWK, MAYO, MQOM, QR-UOV, SDitH, SNOVA, SQIsign, UOV. Sizes are representative Level&nbsp;1 figures and vary by parameter set.</p>
+    <p>The visible triangle behaves like CAP; the two-tier structure (<code>SKiP</code> + <code>S/H</code>) is the actual insight — it predicts where a too-good scheme is hiding its cost. Standardized set: ML-KEM (FIPS&nbsp;203), ML-DSA (FIPS&nbsp;204), SLH-DSA (FIPS&nbsp;205), FN-DSA/Falcon (draft), stateful hash LMS/XMSS (SP&nbsp;800-208), plus Classic McEliece (ISO), sntrup761 (ISO), FrodoKEM (ISO), and HQC (FIPS draft, 2025) as KEMs. Round&nbsp;3 additional-signature candidates (per NIST IR&nbsp;8610): FAEST, HAWK, MAYO, MQOM, QR-UOV, SDitH, SNOVA, SQIsign, UOV. Sizes are representative Level&nbsp;1 figures and vary by parameter set.</p>
     <p>Licensed under the <a href="LICENSE">Apache License 2.0</a>.</p>
   </div>
 </footer>
@@ -352,15 +352,18 @@ const D = [
   {name:'ML-KEM-512', fam:'lattice', status:'std', pk:800, sig:768,
     K:5,P:5,S:6,St:6,H:6,dag:false,
     reads:'KEM centroid (sig col = ciphertext). Balanced, sturdy, well-studied — FIPS-203 default.'},
-  {name:'Classic McEliece', fam:'code', status:'std?', pk:261120, sig:96,
+  {name:'Classic McEliece', fam:'code', status:'iso', pk:261120, sig:96,
     K:1,P:7,S:3,St:7,H:7,dag:false,
-    reads:'(mceliece348864) ~96 B ciphertext, the most conservative assumption in the field — 45+ years with zero cryptanalytic progress — but two SKiP axes bite. Key is catastrophic (~261 KB public key), and Speed is a vector: keygen and encaps are fast (hundreds of µs) while decapsulation is ~10 ms, roughly 10–100× slower. The S score reflects that decaps-dominated profile. Max Hardness, max Sturdiness, monstrous key, slow decaps. NIST selected it for standardization.'},
+    reads:'(mceliece348864) ~96 B ciphertext, the most conservative assumption in the field — 45+ years with zero cryptanalytic progress — but two SKiP axes bite. Key is catastrophic (~261 KB public key), and Speed is a vector: keygen and encaps are fast (hundreds of µs) while decapsulation is ~10 ms, roughly 10–100× slower. The S score reflects that decaps-dominated profile. Max Hardness, max Sturdiness, monstrous key, slow decaps. ISO standardized; NIST selected it for standardization.'},
   {name:'HQC-128', fam:'code', status:'std', pk:2249, sig:4497,
     K:4,P:3,S:6,St:6,H:6,dag:false,
     reads:'(ciphertext col = ct) Quasi-cyclic codes tame McEliece\u2019s key to ~2.2 KB at the cost of a larger ~4.5 KB ciphertext and ~2x-larger transcript than ML-KEM. NIST\u2019s code-based backup pick (FIPS draft, 2025) for assumption diversity against lattices.'},
-  {name:'sntrup761', fam:'lattice', status:'depl', pk:1158, sig:1039,
+  {name:'sntrup761', fam:'lattice', status:'iso', pk:1158, sig:1039,
     K:4,P:4,S:6,St:6,H:5,dag:false,
-    reads:'Streamlined NTRU Prime. Balanced like ML-KEM but on a deliberately \u201Cless-structured\u201D NTRU lattice to dodge ring/cyclotomic attack surface \u2014 a Sturdiness/conservatism hedge. Not a NIST pick, but deployed by default in OpenSSH.'},
+    reads:'Streamlined NTRU Prime. Balanced like ML-KEM but on a deliberately \u201Cless-structured\u201D NTRU lattice to dodge ring/cyclotomic attack surface \u2014 a Sturdiness/conservatism hedge. ISO standardized and deployed by default in OpenSSH; not a NIST pick.'},
+  {name:'FrodoKEM-640', fam:'lattice', status:'iso', pk:9616, sig:9720,
+    K:2,P:2,S:2,St:7,H:6,dag:false,
+    reads:'Conservative, unstructured LWE KEM. Germany\u2019s BSI recommends FrodoKEM at levels 3/5 for long-term confidentiality, and ENISA also recommends it: the deployment story is conservative jurisdictions choosing generic LWE over ML-KEM\u2019s structured module lattice. The cost is visible on all SKiP axes: public keys, ciphertexts, and compute are much larger than ML-KEM.'},
   {name:'Falcon-512', fam:'lattice', status:'std*', pk:897, sig:690,
     K:5,P:6,S:5,St:2,H:6,dag:true,
     reads:'Small key+sig, fast sign/verify \u2014 but \u2020: floating-point Gaussian sampling is fragile and side-channel prone, and keygen is ~19M cycles. The low Sturdiness score is the whole story. Draft FN-DSA standard.'},
@@ -420,7 +423,7 @@ const speedCost = {
   'ML-DSA-44':1.0,'ML-KEM-512':0.85,'Falcon-512':1.5,'SLH-DSA-128f':4.0,
   'HAWK-512':1.05,'SQIsign-I':9.0,'UOV-Ip':0.75,'MAYO-1':1.05,'MAYO-2':1.1,'SNOVA':1.2,
   'QR-UOV':1.3,'FAEST-128f':6.5,'MQOM':2.6,'SDitH':4.5,'Ed25519':0.45,'RSA-2048':2.0,
-  'Classic McEliece':4.0,'HQC-128':1.15,'sntrup761':0.92
+  'Classic McEliece':4.0,'HQC-128':1.15,'sntrup761':0.92,'FrodoKEM-640':3.2
 };
 const xVal=d=>Math.log10(combined(d));         // size axis (log bytes)
 const yVal=d=>Math.log10(speedCost[d.name]);    // speed axis (log proxy)
@@ -543,6 +546,7 @@ function showInfo(d){
   const badge = d.status==='std'||d.status==='std*'
     ? `<span class="badge b-std">${d.status==='std*'?'FIPS (draft)':'FIPS standard'}</span>`
     : d.status==='std?' ? `<span class="badge b-std">NIST selected (draft)</span>`
+    : d.status==='iso' ? `<span class="badge b-std">ISO standard</span>`
     : d.status==='depl' ? `<span class="badge b-std">deployed (non-NIST)</span>`
     : d.status==='r3' ? `<span class="badge b-r3">Round 3 candidate</span>`
     : `<span class="badge b-pre">pre-quantum ref</span>`;
@@ -579,7 +583,7 @@ function scoreCell(n){
   const b=bar(n);
   return `<td class="scorecell"><span class="schip" style="--w:${b.w};--c:${b.c}"><b>${n}</b></span></td>`;
 }
-function statusLabel(s){return s==='std'?'FIPS':s==='std*'?'FIPS (draft)':s==='std?'?'NIST select':s==='depl'?'deployed':s==='r3'?'Round 3':'pre-Q';}
+function statusLabel(s){return s==='std'?'FIPS':s==='std*'?'FIPS (draft)':s==='std?'?'NIST select':s==='iso'?'ISO':s==='depl'?'deployed':s==='r3'?'Round 3':'pre-Q';}
 function renderTable(rows){
   tbody.innerHTML='';
   rows.forEach(d=>{
