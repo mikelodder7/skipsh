@@ -150,6 +150,15 @@
   .famdot{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:7px;vertical-align:middle}
   .legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;font-size:.78rem;color:var(--dim);font-family:'Space Mono',monospace}
   .legend span{display:flex;align-items:center;gap:6px}
+  .size-title{margin-top:34px}
+  .size-title h3{font-family:'Fraunces',serif;font-size:1.35rem;font-weight:600;margin-bottom:6px}
+  .size-title p{font-size:.88rem;color:var(--dim);max-width:780px}
+  table.sizetbl{min-width:620px}
+  table.sizetbl thead th{cursor:default}
+  table.sizetbl td.sizes{font-family:'Space Mono',monospace;font-size:.8rem;color:var(--dim);line-height:1.55}
+  .size-lines{display:grid;gap:3px}
+  .size-lines .variant{color:var(--ink);font-weight:700}
+  table.sizetbl td.note{font-size:.78rem;color:var(--dim)}
 
   /* ---------- SHORTHAND ---------- */
   .short{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:30px}
@@ -266,15 +275,13 @@ footer{padding:46px 0 70px;border-top:1px solid var(--line);color:var(--dim);fon
   <div class="wrap">
     <div class="sec-tag">full reference · click headers to sort</div>
     <h2>The whole field, scored</h2>
-    <p class="lede">Sizes are NIST security Level&nbsp;1 (≈128-bit), representative parameter sets. Each axis is scored <b>1–7</b>, where <b>7</b> is best (smallest / fastest / most conservative / most robust) and <b>1</b> is worst. Bars fill and warm from red&nbsp;(1) through amber&nbsp;(4) to green&nbsp;(7). <b class="dag">†</b> flags a fragile or not-yet-constant-time implementation.</p>
+    <p class="lede">Representative parameter sets scored <b>1–7</b>, where <b>7</b> is best (smallest / fastest / most conservative / most robust) and <b>1</b> is worst. Bars fill and warm from red&nbsp;(1) through amber&nbsp;(4) to green&nbsp;(7). <b class="dag">†</b> flags a fragile or not-yet-constant-time implementation. Raw byte sizes are in the table below.</p>
     <div class="tablewrap">
       <table id="tbl">
         <thead><tr>
           <th data-k="name">Scheme</th>
           <th data-k="fam">Family</th>
           <th data-k="status">Status</th>
-          <th data-k="pk" class="num">PK (B)</th>
-          <th data-k="sig" class="num">Sig/CT (B)</th>
           <th data-k="K">K</th>
           <th data-k="P">P</th>
           <th data-k="S">S</th>
@@ -293,6 +300,19 @@ footer{padding:46px 0 70px;border-top:1px solid var(--line);color:var(--dim);fon
       <span><i class="famdot" style="background:var(--acid)"></i>Isogeny</span>
       <span><i class="famdot" style="background:#7a90ff"></i>Code</span>
       <span><i class="famdot" style="background:#666"></i>Pre-quantum</span>
+    </div>
+    <div class="size-title">
+      <h3>All parameter-set sizes</h3>
+      <p>Byte sizes by parameter set. Each line lists secret key, public key, and payload bytes; payload means signature for signatures and ciphertext for KEMs.</p>
+    </div>
+    <div class="tablewrap">
+      <table id="sizetbl" class="sizetbl">
+        <thead><tr>
+          <th>Sizes (B)</th>
+          <th>Note</th>
+        </tr></thead>
+        <tbody id="sizetbody"></tbody>
+      </table>
     </div>
   </div>
 </section>
@@ -346,44 +366,47 @@ const FAM = {
 
 const D = [
   // standardized
-  {name:'ML-DSA-44', fam:'lattice', status:'std', pk:1312, sig:2420,
+  {name:'ML-DSA', point:'ML-DSA-44', fam:'lattice', status:'std', pk:1312, sig:2420,
     K:4,P:4,S:6,St:6,H:6,dag:false,
     reads:'The centroid. Nothing small, nothing huge, fast all phases, high on both hidden axes — the FIPS-204 workhorse.'},
-  {name:'ML-KEM-512', fam:'lattice', status:'std', pk:800, sig:768,
+  {name:'ML-KEM', point:'ML-KEM-512', fam:'lattice', status:'std', pk:800, sig:768,
     K:5,P:5,S:6,St:6,H:6,dag:false,
     reads:'KEM centroid (sig col = ciphertext). Balanced, sturdy, well-studied — FIPS-203 default.'},
   {name:'Classic McEliece', fam:'code', status:'iso', pk:261120, sig:96,
     K:1,P:7,S:3,St:7,H:7,dag:false,
     reads:'(mceliece348864) ~96 B ciphertext, the most conservative assumption in the field — 45+ years with zero cryptanalytic progress — but two SKiP axes bite. Key is catastrophic (~261 KB public key), and Speed is a vector: keygen and encaps are fast (hundreds of µs) while decapsulation is ~10 ms, roughly 10–100× slower. The S score reflects that decaps-dominated profile. Max Hardness, max Sturdiness, monstrous key, slow decaps. ISO standardized; NIST selected it for standardization.'},
-  {name:'HQC-128', fam:'code', status:'std', pk:2249, sig:4497,
+  {name:'HQC', point:'HQC-128', fam:'code', status:'std', pk:2249, sig:4497,
     K:4,P:3,S:6,St:6,H:6,dag:false,
     reads:'(ciphertext col = ct) Quasi-cyclic codes tame McEliece\u2019s key to ~2.2 KB at the cost of a larger ~4.5 KB ciphertext and ~2x-larger transcript than ML-KEM. NIST\u2019s code-based backup pick (FIPS draft, 2025) for assumption diversity against lattices.'},
-  {name:'sntrup761', fam:'lattice', status:'iso', pk:1158, sig:1039,
+  {name:'sntrup', point:'sntrup761', fam:'lattice', status:'iso', pk:1158, sig:1039,
     K:4,P:4,S:6,St:6,H:5,dag:false,
     reads:'Streamlined NTRU Prime. Balanced like ML-KEM but on a deliberately \u201Cless-structured\u201D NTRU lattice to dodge ring/cyclotomic attack surface \u2014 a Sturdiness/conservatism hedge. ISO standardized and deployed by default in OpenSSH; not a NIST pick.'},
-  {name:'FrodoKEM-640', fam:'lattice', status:'iso', pk:9616, sig:9720,
+  {name:'FrodoKEM', point:'FrodoKEM-640', fam:'lattice', status:'iso', pk:9616, sig:9720,
     K:2,P:2,S:2,St:7,H:6,dag:false,
     reads:'Conservative, unstructured LWE KEM. Germany\u2019s BSI recommends FrodoKEM at levels 3/5 for long-term confidentiality, and ENISA also recommends it: the deployment story is conservative jurisdictions choosing generic LWE over ML-KEM\u2019s structured module lattice. The cost is visible on all SKiP axes: public keys, ciphertexts, and compute are much larger than ML-KEM.'},
-  {name:'Falcon-512', fam:'lattice', status:'std*', pk:897, sig:690,
+  {name:'Falcon', point:'Falcon-512', fam:'lattice', status:'std*', pk:897, sig:690,
     K:5,P:6,S:5,St:2,H:6,dag:true,
     reads:'Small key+sig, fast sign/verify \u2014 but \u2020: floating-point Gaussian sampling is fragile and side-channel prone, and keygen is ~19M cycles. The low Sturdiness score is the whole story. Draft FN-DSA standard.'},
-  {name:'SLH-DSA-128f', fam:'hash', status:'std', pk:32, sig:17088,
+  {name:'SLH-DSA', point:'SLH-DSA-128f', fam:'hash', status:'std', pk:32, sig:17088,
     K:7,P:1,S:3,St:7,H:7,dag:false,
     reads:'Tiny 32 B key, but SKiPs payload hard (~17 KB) and signing is slow. Maximal on both hidden axes \u2014 pure hash, the trust anchor. FIPS-205.'},
+  {name:'XMSS', point:'XMSS-2^10', fam:'hash', status:'std', pk:64, sig:2500,
+    K:7,P:4,S:4,St:7,H:7,dag:false,
+    reads:'Stateful hash-based signature from SP 800-208. Conservative and compact-keyed, with much smaller signatures than SLH-DSA at the cost of state management and a finite signing budget.'},
   // round 3 additional signatures
-  {name:'HAWK-512', fam:'lattice', status:'r3', pk:1024, sig:555,
+  {name:'HAWK', point:'HAWK-512', fam:'lattice', status:'r3', pk:1024, sig:555,
     K:5,P:6,S:6,St:6,H:4,dag:false,
     reads:'The un-daggered Falcon: integer-only arithmetic, compact + fast, sturdy. Hidden cost is Hardness \u2014 younger lattice analysis, smaller analyst pool.'},
-  {name:'SQIsign-I', fam:'iso', status:'r3', pk:64, sig:148,
+  {name:'SQIsign', point:'SQIsign-I', fam:'iso', status:'r3', pk:64, sig:148,
     K:7,P:6,S:1,St:3,H:4,dag:true,
     reads:'Smallest K+P in the field (~212 B combined). SKiPs Speed hard (very high latency) and \u2020: constant-time signing still open; thin analyst pool on the endomorphism-ring assumption.'},
-  {name:'UOV-Ip', fam:'uov', status:'r3', pk:278432, sig:128,
+  {name:'UOV', point:'UOV-Ip', fam:'uov', status:'r3', pk:278432, sig:128,
     K:1,P:7,S:7,St:6,H:6,dag:false,
     reads:'~128 B signature, very fast, 20+ years of cryptanalysis \u2014 the most studied multivariate assumption \u2014 but SKiPs Key catastrophically (~278 KB public key). Great when keys can be pre-distributed.'},
-  {name:'MAYO-1', fam:'uov', status:'r3', pk:1168, sig:454,
+  {name:'MAYO', point:'MAYO-1', fam:'uov', status:'r3', pk:1168, sig:454,
     K:4,P:6,S:6,St:5,H:4,dag:false,
     reads:'The small-key MAYO point (n=86,m=78,o=8,k=10): ~1.2 KB key, 454 B signature \u2014 still smaller than Falcon-512\u2019s sig. Trades a bigger signature for a far smaller key than MAYO-2. Hardness debt: thin multivariate margin (IR 8610), but it survived Round 2 without a parameter rescue.'},
-  {name:'MAYO-2', fam:'uov', status:'r3', pk:4912, sig:186,
+  {name:'MAYO', point:'MAYO-2', fam:'uov', status:'r3', pk:4912, sig:186,
     K:3,P:6,S:6,St:5,H:4,dag:false,
     reads:'The small-signature MAYO point (n=81,m=64,o=17,k=4): tiny 186 B signature, but the key grows to ~4.9 KB. MAYO\u2019s knob is K\u2194P: shrink the signature and the key grows. Off-triangle catch is the same thin multivariate margin (IR 8610).'},
   {name:'SNOVA', fam:'uov', status:'r3', pk:9826, sig:248,
@@ -392,7 +415,7 @@ const D = [
   {name:'QR-UOV', fam:'uov', status:'r3', pk:24114, sig:331,
     K:2,P:6,S:6,St:6,H:5,dag:false,
     reads:'Quotient-ring UOV: shrinks the classic UOV key (~24 KB vs hundreds of KB) while keeping a small ~331 B signature. A middle-ground multivariate bet \u2014 more conservative than MAYO/SNOVA, heavier key.'},
-  {name:'FAEST-128f', fam:'mpc', status:'r3', pk:32, sig:6336,
+  {name:'FAEST', point:'FAEST-128f', fam:'mpc', status:'r3', pk:32, sig:6336,
     K:7,P:2,S:2,St:6,H:7,dag:false,
     reads:'Security reduces to AES \u2014 on the same footing as SLH-DSA, maximally conservative. Tiny 32 B key, but SKiPs payload (~6 KB) and signing is very slow (~28M cycles).'},
   {name:'MQOM', fam:'mpc', status:'r3', pk:59, sig:2820,
@@ -405,7 +428,16 @@ const D = [
   {name:'Ed25519', fam:'pre', status:'pre', pk:32, sig:64,
     K:7,P:7,S:7,St:7,H:1,dag:false,
     reads:'The classical "best of all worlds" \u2014 tiny, fast, sturdy. Its only failing axis is Hardness against a quantum adversary (it drops to 1). The baseline everything is measured against.'},
-  {name:'RSA-2048', fam:'pre', status:'pre', pk:256, sig:256,
+  {name:'NIST P-curves', point:'P-256', fam:'pre', status:'pre', pk:33, sig:64,
+    K:7,P:7,S:7,St:7,H:1,dag:false,
+    reads:'Classical ECDSA over the NIST prime curves (P-256/P-384/P-521). Tiny keys, tiny signatures, fast operations, mature implementations — but quantum-broken by Shor.'},
+  {name:'secp256k1', fam:'pre', status:'pre', pk:33, sig:64,
+    K:7,P:7,S:7,St:6,H:1,dag:false,
+    reads:'Classical Koblitz-curve ECDSA reference. Very compact and heavily deployed, especially in cryptocurrency systems; like all discrete-log curves, it fails the quantum Hardness axis.'},
+  {name:'Brainpool', point:'brainpoolP256r1', fam:'pre', status:'pre', pk:33, sig:64,
+    K:7,P:7,S:6,St:6,H:1,dag:false,
+    reads:'Classical Brainpool ECDSA curves. Similar size profile to NIST P-curves with more conservative random-looking curve generation; still quantum-broken on the Hardness axis.'},
+  {name:'RSA', point:'RSA-2048', fam:'pre', status:'pre', pk:256, sig:256,
     K:6,P:6,S:4,St:6,H:1,dag:false,
     reads:'Classical balanced point; ~1ms ops. Quantum-broken \u2014 Hardness drops to 1 against Shor \u2014 but the historical reference for "all three at once."'}
 ];
@@ -420,13 +452,14 @@ const PW=W-PAD.l-PAD.r, PH=H-PAD.t-PAD.b;
 const combined = d=>d.pk+d.sig;
 // rough relative signing cost proxy (lower=faster), hand-ranked since exact cycles vary
 const speedCost = {
-  'ML-DSA-44':1.0,'ML-KEM-512':0.85,'Falcon-512':1.5,'SLH-DSA-128f':4.0,
+  'ML-DSA-44':1.0,'ML-KEM-512':0.85,'Falcon-512':1.5,'SLH-DSA-128f':4.0,'XMSS-2^10':2.8,
   'HAWK-512':1.05,'SQIsign-I':9.0,'UOV-Ip':0.75,'MAYO-1':1.05,'MAYO-2':1.1,'SNOVA':1.2,
-  'QR-UOV':1.3,'FAEST-128f':6.5,'MQOM':2.6,'SDitH':4.5,'Ed25519':0.45,'RSA-2048':2.0,
+  'QR-UOV':1.3,'FAEST-128f':6.5,'MQOM':2.6,'SDitH':4.5,'Ed25519':0.45,
+  'P-256':0.55,'secp256k1':0.55,'brainpoolP256r1':0.65,'RSA-2048':2.0,
   'Classic McEliece':4.0,'HQC-128':1.15,'sntrup761':0.92,'FrodoKEM-640':3.2
 };
 const xVal=d=>Math.log10(combined(d));         // size axis (log bytes)
-const yVal=d=>Math.log10(speedCost[d.name]);    // speed axis (log proxy)
+const yVal=d=>Math.log10(speedCost[d.point||d.name]);    // speed axis (log proxy)
 const xs=D.map(xVal), ys=D.map(yVal);
 const xmin=Math.min(...xs)-0.25, xmax=Math.max(...xs)+0.25;
 const ymin=Math.min(...ys)-0.12, ymax=Math.max(...ys)+0.12;
@@ -592,8 +625,6 @@ function renderTable(rows){
       <td class="name">${d.name}${d.dag?' <span class="dag">†</span>':''}</td>
       <td><span class="famdot" style="background:${FAM[d.fam].c}"></span>${FAM[d.fam].label}</td>
       <td style="font-family:'Space Mono';font-size:.72rem;color:var(--dim)">${statusLabel(d.status)}</td>
-      <td class="num">${d.pk.toLocaleString()}</td>
-      <td class="num">${d.sig.toLocaleString()}</td>
       ${scoreCell(d.K)}
       ${scoreCell(d.P)}
       ${scoreCell(d.S)}
@@ -606,13 +637,74 @@ function renderTable(rows){
 }
 renderTable(D);
 
+const SIZE_ROWS = [
+  {name:'ML-KEM-512/768/1024', fam:'lattice', sk:[1632,2400,3168], pk:[800,1184,1568], payload:[768,1088,1568], note:'ciphertext'},
+  {name:'ML-DSA-44/65/87', fam:'lattice', sk:[2560,4032,4896], pk:[1312,1952,2592], payload:[2420,3309,4627], note:'signature'},
+  {name:'Falcon-512/1024', fam:'lattice', sk:[1281,2305], pk:[897,1793], payload:[690,1330], note:'padded signature maximum'},
+  {name:'HAWK-512/1024', fam:'lattice', sk:[184,360], pk:[1024,2440], payload:[555,1221], note:'signature'},
+  {name:'sntrup-653/761/857/953/1013/1277', fam:'lattice', sk:[1518,1763,1999,2254,2417,3059], pk:[994,1158,1322,1505,1623,2067], payload:[897,1039,1184,1349,1455,1847], note:'ciphertext'},
+  {name:'FrodoKEM-640/976/1344', fam:'lattice', sk:[19888,31296,43088], pk:[9616,15632,21520], payload:[9720,15744,21632], note:'ciphertext; AES and SHAKE sets have the same sizes'},
+  {name:'SLH-DSA-128s/128f/192s/192f/256s/256f', fam:'hash', sk:[64,64,96,96,128,128], pk:[32,32,48,48,64,64], payload:[7856,17088,16224,35664,29792,49856], note:'signature; SHA2 and SHAKE variants share sizes'},
+  {name:'XMSS-2^10/2^16/2^20', fam:'hash', sk:[132,132,132], pk:[64,64,64], payload:[2500,2692,2820], note:'stateful hash signature; minimal serialized secret key, excluding traversal cache'},
+  {name:'Classic McEliece-348864/460896/6688128/6960119/8192128', fam:'code', sk:[6492,13608,13932,13948,14120], pk:[261120,524160,1044992,1047319,1357824], payload:[96,156,208,194,208], note:'ciphertext; f variants share sizes'},
+  {name:'HQC-128/192/256', fam:'code', sk:[2321,4602,7333], pk:[2241,4514,7237], payload:[4433,8978,14421], note:'ciphertext'},
+  {name:'SQIsign-I/III/V', fam:'iso', sk:[16,24,32], pk:[64,96,128], payload:[148,263,462], note:'signature'},
+  {name:'UOV-Ip/III/V', fam:'uov', sk:[237,354,507], pk:[278432,611696,1344528], payload:[128,192,260], note:'signature'},
+  {name:'MAYO-1/2/3/5', fam:'uov', sk:[24,24,32,40], pk:[1168,4912,2656,5488], payload:[454,186,681,964], note:'signature'},
+  {name:'SNOVA-24-5-4/24-5-5/37-8-4/37-17-2/49-11-3', fam:'uov', sk:[368,368,541,541,759], pk:[9826,12254,24517,24517,49152], payload:[248,309,378,410,566], note:'signature'},
+  {name:'QR-UOV-I/III/V', fam:'uov', sk:[32,48,64], pk:[24114,61960,162848], payload:[331,494,748], note:'signature'},
+  {name:'FAEST-128s/128f/192s/192f/256s/256f', fam:'mpc', sk:[32,32,48,48,64,64], pk:[32,32,48,48,64,64], payload:[5956,6336,13512,16224,26596,32256], note:'signature'},
+  {name:'MQOM-128/192/256', fam:'mpc', sk:[32,48,64], pk:[59,78,96], payload:[2820,6176,11184], note:'signature'},
+  {name:'SDitH-128/192/256', fam:'mpc', sk:[32,48,64], pk:[120,176,232], payload:[8241,14852,23564], note:'signature'},
+  {name:'Ed25519', fam:'pre', sk:[32], pk:[32], payload:[64], note:'signature; classical reference'},
+  {name:'P-256/384/521', fam:'pre', sk:[32,48,66], pk:[33,49,67], payload:[64,96,132], note:'ECDSA; compressed public key, raw r||s signature'},
+  {name:'secp256k1', fam:'pre', sk:[32], pk:[33], payload:[64], note:'ECDSA; compressed public key, raw r||s signature'},
+  {name:'brainpoolP256r1/brainpoolP256t1/brainpoolP320r1/brainpoolP320t1/brainpoolP384r1/brainpoolP384t1/brainpoolP512r1/brainpoolP512t1', fam:'pre', sk:[32,32,40,40,48,48,64,64], pk:[33,33,41,41,49,49,65,65], payload:[64,64,80,80,96,96,128,128], note:'ECDSA; compressed public key, raw r||s signature'},
+  {name:'RSA-2048/3072/4096/8192', fam:'pre', sk:[1190,1766,2348,4653], pk:[256,384,512,1024], payload:[256,384,512,1024], note:'signature; representative DER secret key size'}
+];
+
+function slashBreak(s){return String(s).replaceAll('/','/<wbr>');}
+function variantLabels(name){
+  const parts=String(name).split('/');
+  if(parts.length===1)return parts;
+  if(parts[1] && parts[1].includes('-')){
+    const firstDash=parts[0].indexOf('-');
+    if(firstDash>0){
+      const prefix=parts[0].slice(0,firstDash+1);
+      return [parts[0], ...parts.slice(1).map(p=>prefix+p)];
+    }
+  }
+  const m=parts[0].match(/^(.*-)([^-]+)$/);
+  if(!m)return parts;
+  return [parts[0], ...parts.slice(1).map(p=>m[1]+p)];
+}
+function sizeSummary(d){
+  const labels=variantLabels(d.name);
+  const rows=d.sk.map((_,i)=>
+    `<div><span class="variant">${slashBreak(labels[i]||String(i+1))}</span>: SK ${d.sk[i].toLocaleString()} · PK ${d.pk[i].toLocaleString()} · P ${d.payload[i].toLocaleString()}</div>`
+  );
+  return `<div class="size-lines">${rows.join('')}</div>`;
+}
+function renderSizeTable(){
+  const body=document.getElementById('sizetbody');
+  body.innerHTML='';
+  SIZE_ROWS.forEach(d=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td class="sizes">${sizeSummary(d)}</td>
+      <td class="note">${d.note}</td>`;
+    body.appendChild(tr);
+  });
+}
+renderSizeTable();
+
 // sorting
 let sortKey=null,sortDir=1;
 document.querySelectorAll('#tbl thead th').forEach(th=>{
   th.onclick=()=>{
     const k=th.dataset.k;
     sortDir = (sortKey===k)? -sortDir : 1; sortKey=k;
-    const num=['pk','sig'].includes(k);
+    const num=['K','P','S','St','H'].includes(k);
     const sorted=[...D].sort((a,b)=>{
       let va=a[k],vb=b[k];
       if(num){return (va-vb)*sortDir;}
