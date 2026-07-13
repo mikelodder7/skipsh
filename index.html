@@ -96,6 +96,41 @@
     line-height:1.35;margin-top:10px}
   .punch p em{font-style:italic;color:var(--amber)}
 
+  /* ---------- FAMILY ANALOGIES ---------- */
+  .analogy-strip{display:grid;grid-template-columns:repeat(7,1fr);gap:10px;margin-top:30px}
+  .amini{--fc:var(--cyan);background:var(--panel);border:1px solid var(--line);border-top:3px solid var(--fc);
+    border-radius:13px;padding:17px 14px;min-height:178px}
+  .amini .glyph{font-size:1.65rem;line-height:1;margin-bottom:12px;display:block}
+  .amini h3{font-family:'Fraunces',serif;font-size:1.05rem;line-height:1.15;margin-bottom:8px}
+  .amini p{font-size:.79rem;line-height:1.45;color:var(--dim)}
+  .amini.lattice{--fc:var(--cyan)} .amini.code{--fc:#7a90ff}
+  .amini.uov{--fc:var(--amber)} .amini.mpc{--fc:var(--violet)}
+  .amini.hash{--fc:var(--rose)} .amini.iso{--fc:var(--acid)}
+  .amini.ntru{--fc:#37bcb5}
+  .analogy-jump{margin-top:18px;font-size:.84rem;color:var(--dim)}
+
+  .analogy-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:32px}
+  .acard{--fc:var(--cyan);background:var(--panel);border:1px solid var(--line);
+    border-top:3px solid var(--fc);border-radius:16px;padding:25px}
+  .acard.lattice{--fc:var(--cyan)} .acard.code{--fc:#7a90ff}
+  .acard.uov{--fc:var(--amber)} .acard.mpc{--fc:var(--violet)}
+  .acard.hash{--fc:var(--rose)} .acard.iso{--fc:var(--acid)}
+  .acard .family{font-family:'Space Mono',monospace;font-size:.68rem;letter-spacing:.18em;
+    text-transform:uppercase;color:var(--fc);margin-bottom:8px}
+  .acard h3{font-family:'Fraunces',serif;font-size:1.45rem;line-height:1.2;margin-bottom:11px}
+  .acard > p{font-size:.93rem;color:var(--dim)}
+  .acard > p b{color:var(--ink)}
+  .acard details{border-top:1px solid var(--line);margin-top:18px;padding-top:14px}
+  .acard summary{cursor:pointer;font-family:'Space Mono',monospace;font-size:.72rem;
+    letter-spacing:.08em;color:var(--ink);list-style-position:outside;margin-left:16px}
+  .acard details[open] summary{color:var(--fc);margin-bottom:12px}
+  .variants{display:grid;gap:11px}
+  .variant-read{font-size:.84rem;color:var(--dim);line-height:1.5}
+  .variant-read b{color:var(--ink)}
+  .breaks{margin-top:28px;border:1px dashed var(--line);border-radius:14px;padding:20px 22px;
+    color:var(--dim);font-size:.88rem}
+  .breaks b{color:var(--amber)}
+
   /* ---------- PLOT ---------- */
   .plotwrap{margin-top:34px;background:var(--panel);border:1px solid var(--line);border-radius:18px;
     padding:26px;display:grid;grid-template-columns:1fr 300px;gap:26px}
@@ -176,9 +211,12 @@ footer{padding:46px 0 70px;border-top:1px solid var(--line);color:var(--dim);fon
   @media(max-width:860px){
     .grid3,.short{grid-template-columns:1fr}
     .grid2{grid-template-columns:1fr}
+    .analogy-strip{grid-template-columns:repeat(2,1fr)}
+    .analogy-grid{grid-template-columns:1fr}
     .plotwrap{grid-template-columns:1fr}
     .info{position:static}
   }
+  @media(max-width:460px){.analogy-strip{grid-template-columns:1fr}.amini{min-height:0}}
 </style>
 </head>
 <body>
@@ -250,6 +288,53 @@ footer{padding:46px 0 70px;border-top:1px solid var(--line);color:var(--dim);fon
   </div>
 </section>
 
+<!-- FAMILY ANALOGY PRIMER -->
+<section id="family-primer">
+  <div class="wrap">
+    <div class="sec-tag">mental models · a quick field guide</div>
+    <h2>Picture the families before plotting them</h2>
+    <p class="lede">The math differs, but every family hides a useful private advantage inside a hard public puzzle. These are memory aids—not definitions.</p>
+    <div class="analogy-strip">
+      <div class="amini lattice">
+        <span class="glyph" aria-hidden="true">✦</span>
+        <h3>Noisy lattices</h3>
+        <p>A star chart with slightly wrong coordinates; a private map finds or proves the intended short route.</p>
+      </div>
+      <div class="amini ntru">
+        <span class="glyph" aria-hidden="true">◎</span>
+        <h3>NTRU-style</h3>
+        <p>A tangled orbital map becomes simple when read in the private coordinate system.</p>
+      </div>
+      <div class="amini code">
+        <span class="glyph" aria-hidden="true">☂</span>
+        <h3>Code-based</h3>
+        <p>A message is sent through a storm; the private repair manual corrects its deliberate damage.</p>
+      </div>
+      <div class="amini uov">
+        <span class="glyph" aria-hidden="true">x²</span>
+        <h3>Multivariate</h3>
+        <p>A huge book of tangled equations; the private teacher's edition reveals the order of solution.</p>
+      </div>
+      <div class="amini mpc">
+        <span class="glyph" aria-hidden="true">◉</span>
+        <h3>MPC-in-the-Head</h3>
+        <p>One signer rehearses every role in a locked-room proof, then an auditor checks most recordings.</p>
+      </div>
+      <div class="amini hash">
+        <span class="glyph" aria-hidden="true">♢</span>
+        <h3>Hash-based</h3>
+        <p>A catalog of one-time wax seals; a tree of fingerprints proves each seal is genuine.</p>
+      </div>
+      <div class="amini iso">
+        <span class="glyph" aria-hidden="true">⌁</span>
+        <h3>Isogeny</h3>
+        <p>Secret bridges join unusual mathematical islands; the signer proves a route without revealing it.</p>
+      </div>
+    </div>
+    <p class="analogy-jump">The <a href="#family-explainer">full family guide</a> after the tables separates the schemes and shows where each analogy breaks.</p>
+  </div>
+</section>
+
 <!-- INTERACTIVE PLOT -->
 <section id="plot">
   <div class="wrap">
@@ -317,6 +402,116 @@ footer{padding:46px 0 70px;border-top:1px solid var(--line);color:var(--dim);fon
   </div>
 </section>
 
+<!-- FULL FAMILY EXPLAINER -->
+<section id="family-explainer">
+  <div class="wrap">
+    <div class="sec-tag">additional reading · how the families work</div>
+    <h2>The private advantage, in plain English</h2>
+    <p class="lede">Open a card for the scheme-level differences. The recurring idea is simple: the public puzzle is easy to check, while the private key supplies a shortcut that is hard to discover.</p>
+    <div class="analogy-grid">
+      <article class="acard lattice">
+        <div class="family">Lattice · noisy coordinates</div>
+        <h3>A star field with a private map</h3>
+        <p><b>Picture it:</b> a regular star field with hundreds of dimensions. The public directions are all slightly inaccurate. Those tiny errors pile up, but the private map provides the shortcut needed to recover or create a valid nearby route.</p>
+        <details>
+          <summary>ML-KEM, ML-DSA and FrodoKEM</summary>
+          <div class="variants">
+            <p class="variant-read"><b>ML-KEM:</b> Alice hides a meeting point in noisy directions. Bob's private key removes enough error to recover the same shared secret; an outsider cannot efficiently untangle it.</p>
+            <p class="variant-read"><b>ML-DSA:</b> The private key helps produce a short, valid route to a public destination. Anyone can check the route without learning the private map.</p>
+            <p class="variant-read"><b>FrodoKEM:</b> The same noisy-chart idea on a less structured, much roomier chart. The conservative structure costs far more storage, bandwidth and work.</p>
+          </div>
+        </details>
+      </article>
+
+      <article class="acard lattice">
+        <div class="family">Lattice · NTRU-style</div>
+        <h3>A tangled map with simpler secret coordinates</h3>
+        <p><b>Picture it:</b> the public map describes a space using tangled, awkward directions. A private coordinate system uses short, simple steps, making certain routes or mixtures manageable.</p>
+        <details>
+          <summary>Falcon, HAWK and Sntrup</summary>
+          <div class="variants">
+            <p class="variant-read"><b>Falcon:</b> The secret coordinates help find a very short route to the requested destination. Choosing routes with exactly the right statistical balance is compact and fast, but delicate to implement safely.</p>
+            <p class="variant-read"><b>HAWK:</b> It shares the short-secret-map intuition, but uses discrete, integer-oriented machinery instead of Falcon's delicate floating-point sampling approach.</p>
+            <p class="variant-read"><b>Sntrup:</b> A KEM cousin, not a Falcon-like signature. Picture a small secret pattern mixed around a circular track; the private inverse untangles the noisy mixture.</p>
+          </div>
+        </details>
+      </article>
+
+      <article class="acard code">
+        <div class="family">Code-based · error correction</div>
+        <h3>A message sent through a storm</h3>
+        <p><b>Picture it:</b> Alice adds redundancy to a message, then deliberately damages it. The public encoder is visible, but Bob has the private high-powered repair manual for correcting that kind of damage.</p>
+        <details>
+          <summary>Classic McEliece and HQC</summary>
+          <div class="variants">
+            <p class="variant-read"><b>Classic McEliece:</b> A powerful, structured decoder is disguised as an ordinary-looking public code. The public repair instructions are enormous, but the damaged package is tiny.</p>
+            <p class="variant-read"><b>HQC:</b> Sparse, repeating structure shrinks the public material. Its different decoding puzzle instead needs a much larger damaged package.</p>
+            <p class="variant-read"><b>Treasure-map version:</b> think “reconstructing a deliberately damaged treasure map,” not reassembling a trillion literal pieces. The secret key decodes corrupted data.</p>
+          </div>
+        </details>
+      </article>
+
+      <article class="acard uov">
+        <div class="family">Multivariate / UOV · quadratic equations</div>
+        <h3>A teacher's edition for tangled equations</h3>
+        <p><b>Picture it:</b> the public key is a huge book of equations with all the variables tangled together. The private teacher's edition secretly sorts them so a signer can solve a fresh puzzle in stages. The answer sheet is easy for anyone to check.</p>
+        <details>
+          <summary>UOV, MAYO, SNOVA and QR-UOV</summary>
+          <div class="variants">
+            <p class="variant-read"><b>UOV:</b> The secret separates “vinegar” variables, chosen first, from “oil” variables that then become easy to solve. Hiding this split produces a huge public book and a tiny signature.</p>
+            <p class="variant-read"><b>MAYO:</b> Several smaller solution attempts are combined to satisfy the public equations. Its settings trade public-key size against signature size.</p>
+            <p class="variant-read"><b>SNOVA:</b> Compact matrix structure acts like a reusable printing template. It saves space, but the extra pattern gives cryptanalysts more structure to examine.</p>
+            <p class="variant-read"><b>QR-UOV:</b> Repeating quotient-ring structure compresses UOV's public book, with a different balance between compactness and conservative design.</p>
+          </div>
+        </details>
+      </article>
+
+      <article class="acard mpc">
+        <div class="family">MPC-in-the-Head · zero-knowledge proofs</div>
+        <h3>A locked-room proof rehearsal</h3>
+        <p><b>Picture it:</b> the signer privately plays every actor solving a locked-room puzzle and records each view. A hash plays the unpredictable auditor, choosing most recordings to reveal. They must agree, while the hidden view protects the secret.</p>
+        <details>
+          <summary>FAEST, MQOM and SDitH</summary>
+          <div class="variants">
+            <p class="variant-read"><b>FAEST:</b> Proves knowledge of an AES key matching a public value, using optimized correlated views. It is a modern descendant of the basic rehearsal idea.</p>
+            <p class="variant-read"><b>MQOM:</b> The hidden knowledge is a solution to multivariate quadratic equations—the equation-book puzzle inside the rehearsal wrapper.</p>
+            <p class="variant-read"><b>SDitH:</b> The hidden knowledge is a small error pattern explaining a code syndrome—the error-correction puzzle inside the rehearsal wrapper.</p>
+            <p class="variant-read">Signatures grow because they carry commitments and many repeated rehearsal transcripts. The private key is the secret solution being proved, not a key that decrypts the recordings.</p>
+          </div>
+        </details>
+      </article>
+
+      <article class="acard hash">
+        <div class="family">Hash-based · one-time authentication</div>
+        <h3>A catalog of one-time wax seals</h3>
+        <p><b>Picture it:</b> the signer prepares one-time seals organized by a tree of fingerprints. A signature reveals a seal and the short catalog trail proving that it belongs beneath the public root fingerprint.</p>
+        <details>
+          <summary>SLH-DSA, LMS and XMSS</summary>
+          <div class="variants">
+            <p class="variant-read"><b>SLH-DSA:</b> Carries enough directions in each signature to work without remembering which seal was previously used. No state tracking is needed, but signatures are large.</p>
+            <p class="variant-read"><b>LMS / XMSS:</b> Use an indexed book of seals. The signer must remember the next unused page because reusing a one-time seal can break security; in return, signatures can be smaller.</p>
+            <p class="variant-read">Real private keys normally derive this material from secret seeds—the signer does not literally store a warehouse-sized book of seals.</p>
+          </div>
+        </details>
+      </article>
+
+      <article class="acard iso">
+        <div class="family">Isogeny · structure-preserving maps</div>
+        <h3>Secret bridges between unusual islands</h3>
+        <p><b>Picture it:</b> every mathematical island has its own landscape. Special bridges preserve important features while transforming one island into another. The signer proves knowledge of a hidden bridge route without revealing it.</p>
+        <details>
+          <summary>SQIsign</summary>
+          <div class="variants">
+            <p class="variant-read"><b>SQIsign:</b> Gives a compact proof of a secret relationship between supersingular elliptic-curve islands. Its keys and signatures are tiny, while signing and safe implementation are demanding.</p>
+            <p class="variant-read">An isogeny is a mathematical map, not a physical bridge. SQIsign also should not be equated with the broken SIDH/SIKE key exchange merely because both involve supersingular isogenies.</p>
+          </div>
+        </details>
+      </article>
+    </div>
+    <p class="breaks"><b>These analogies are intentionally simple.</b> They leave out the more complicated parts, including the complete mathematics, security proofs, failure probabilities and implementation hazards.</p>
+  </div>
+</section>
+
 <!-- SHORTHAND -->
 <section id="short">
   <div class="wrap">
@@ -344,7 +539,7 @@ footer{padding:46px 0 70px;border-top:1px solid var(--line);color:var(--dim);fon
 
 <footer>
   <div class="wrap">
-    <p>The visible triangle behaves like CAP; the two-tier structure (<code>SKiP</code> + <code>S/H</code>) is the actual insight — it predicts where a too-good scheme is hiding its cost. Standardized set: ML-KEM (FIPS&nbsp;203), ML-DSA (FIPS&nbsp;204), SLH-DSA (FIPS&nbsp;205), FN-DSA/Falcon (draft), stateful hash LMS/XMSS (SP&nbsp;800-208), plus Classic McEliece (ISO), sntrup761 (ISO), FrodoKEM (ISO), and HQC (FIPS draft, 2025) as KEMs. Round&nbsp;3 additional-signature candidates (per NIST IR&nbsp;8610): FAEST, HAWK, MAYO, MQOM, QR-UOV, SDitH, SNOVA, SQIsign, UOV. Sizes are representative Level&nbsp;1 figures and vary by parameter set.</p>
+    <p>The visible triangle behaves like CAP; the two-tier structure (<code>SKiP</code> + <code>S/H</code>) is the actual insight — it predicts where a too-good scheme is hiding its cost. Standardized set: ML-KEM (FIPS&nbsp;203), ML-DSA (FIPS&nbsp;204), SLH-DSA (FIPS&nbsp;205), FN-DSA/Falcon (draft), stateful hash LMS/XMSS (SP&nbsp;800-208), plus Classic McEliece (ISO), Sntrup (ISO), FrodoKEM (ISO), and HQC (FIPS draft, 2025) as KEMs. Round&nbsp;3 additional-signature candidates (per NIST IR&nbsp;8610): FAEST, HAWK, MAYO, MQOM, QR-UOV, SDitH, SNOVA, SQIsign, UOV. Sizes are representative Level&nbsp;1 figures and vary by parameter set.</p>
     <p>Licensed under the <a href="LICENSE">Apache License 2.0</a>.</p>
   </div>
 </footer>
@@ -378,7 +573,7 @@ const D = [
   {name:'HQC', point:'HQC-128', fam:'code', status:'std', pk:2249, sig:4497,
     K:4,P:3,S:6,St:6,H:6,dag:false,
     reads:'(ciphertext col = ct) Quasi-cyclic codes tame McEliece\u2019s key to ~2.2 KB at the cost of a larger ~4.5 KB ciphertext and ~2x-larger transcript than ML-KEM. NIST\u2019s code-based backup pick (FIPS draft, 2025) for assumption diversity against lattices.'},
-  {name:'sntrup', point:'sntrup761', fam:'lattice', status:'iso', pk:1158, sig:1039,
+  {name:'Sntrup', point:'sntrup761', fam:'lattice', status:'iso', pk:1158, sig:1039,
     K:4,P:4,S:6,St:6,H:5,dag:false,
     reads:'Streamlined NTRU Prime. Balanced like ML-KEM but on a deliberately \u201Cless-structured\u201D NTRU lattice to dodge ring/cyclotomic attack surface \u2014 a Sturdiness/conservatism hedge. ISO standardized and deployed by default in OpenSSH; not a NIST pick.'},
   {name:'FrodoKEM', point:'FrodoKEM-640', fam:'lattice', status:'iso', pk:9616, sig:9720,
@@ -642,7 +837,7 @@ const SIZE_ROWS = [
   {name:'ML-DSA-44/65/87', fam:'lattice', sk:[2560,4032,4896], pk:[1312,1952,2592], payload:[2420,3309,4627], note:'signature'},
   {name:'Falcon-512/1024', fam:'lattice', sk:[1281,2305], pk:[897,1793], payload:[690,1330], note:'padded signature maximum'},
   {name:'HAWK-512/1024', fam:'lattice', sk:[184,360], pk:[1024,2440], payload:[555,1221], note:'signature'},
-  {name:'sntrup-653/761/857/953/1013/1277', fam:'lattice', sk:[1518,1763,1999,2254,2417,3059], pk:[994,1158,1322,1505,1623,2067], payload:[897,1039,1184,1349,1455,1847], note:'ciphertext'},
+  {name:'Sntrup-653/761/857/953/1013/1277', fam:'lattice', sk:[1518,1763,1999,2254,2417,3059], pk:[994,1158,1322,1505,1623,2067], payload:[897,1039,1184,1349,1455,1847], note:'ciphertext'},
   {name:'FrodoKEM-640/976/1344', fam:'lattice', sk:[19888,31296,43088], pk:[9616,15632,21520], payload:[9720,15744,21632], note:'ciphertext; AES and SHAKE sets have the same sizes'},
   {name:'SLH-DSA-128s/128f/192s/192f/256s/256f', fam:'hash', sk:[64,64,96,96,128,128], pk:[32,32,48,48,64,64], payload:[7856,17088,16224,35664,29792,49856], note:'signature; SHA2 and SHAKE variants share sizes'},
   {name:'XMSS-2^10/2^16/2^20', fam:'hash', sk:[132,132,132], pk:[64,64,64], payload:[2500,2692,2820], note:'stateful hash signature; minimal serialized secret key, excluding traversal cache'},
