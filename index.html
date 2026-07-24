@@ -526,7 +526,7 @@ footer{padding:46px 0 70px;border-top:1px solid var(--line);color:var(--dim);fon
       <div class="scard">
         <div class="n">02 · max the hidden axes</div>
         <h4>Long-lived roots, can't be wrong?</h4>
-        <p><span class="pick">SLH-DSA / Classic McEliece / FAEST.</span> Conservative assumptions, sturdy implementations. You pay in payload or key size — accept it for trust anchors.</p>
+        <p><span class="pick">SLH-DSA / Classic McEliece 6688128 or 6960119 / FAEST.</span> Conservative assumptions, sturdy implementations. For Classic McEliece, do not use the lower-margin 348864 parameter set for a long-lived root. You pay in payload or key size — accept it for trust anchors.</p>
       </div>
       <div class="scard">
         <div class="n">03 · byte-minimal, debt accepted</div>
@@ -569,7 +569,7 @@ const D = [
     reads:'KEM centroid (sig col = ciphertext). Balanced, sturdy, well-studied — FIPS-203 default.'},
   {name:'Classic McEliece', fam:'code', status:'iso', pk:261120, sig:96,
     K:1,P:7,S:3,St:7,H:7,dag:false,
-    reads:'(mceliece348864) ~96 B ciphertext, the most conservative assumption in the field — 45+ years with zero cryptanalytic progress — but two SKiP axes bite. Key is catastrophic (~261 KB public key), and Speed is a vector: keygen and encaps are fast (hundreds of µs) while decapsulation is ~10 ms, roughly 10–100× slower. The S score reflects that decaps-dominated profile. Max Hardness, max Sturdiness, monstrous key, slow decaps. ISO standardized; NIST selected it for standardization.'},
+    reads:'(mceliece348864) ~96 B ciphertext and a catastrophic ~261 KB public key. This smallest parameter set is shown for comparison, but is <b>not recommended here</b>; prefer mceliece6688128 or mceliece6960119 for long-lived security. The Classic McEliece team’s <a href="https://classic.mceliece.org/mceliece-610-20260623.pdf">June 2026 analysis</a> concludes that the recent speculative algebraic attack does not threaten Classic McEliece, while also quantifying the smaller set’s best known generic attack at roughly 2<sup>150</sup> bit operations. Classic McEliece retains its conservative assumption and long cryptanalytic history, but pays with enormous keys and slow decapsulation.'},
   {name:'HQC', point:'HQC-128', fam:'code', status:'std', pk:2249, sig:4497,
     K:4,P:3,S:6,St:6,H:6,dag:false,
     reads:'(ciphertext col = ct) Quasi-cyclic codes tame McEliece\u2019s key to ~2.2 KB at the cost of a larger ~4.5 KB ciphertext and ~2x-larger transcript than ML-KEM. NIST\u2019s code-based backup pick (FIPS draft, 2025) for assumption diversity against lattices.'},
@@ -841,7 +841,7 @@ const SIZE_ROWS = [
   {name:'FrodoKEM-640/976/1344', fam:'lattice', sk:[19888,31296,43088], pk:[9616,15632,21520], payload:[9720,15744,21632], note:'ciphertext; AES and SHAKE sets have the same sizes'},
   {name:'SLH-DSA-128s/128f/192s/192f/256s/256f', fam:'hash', sk:[64,64,96,96,128,128], pk:[32,32,48,48,64,64], payload:[7856,17088,16224,35664,29792,49856], note:'signature; SHA2 and SHAKE variants share sizes'},
   {name:'XMSS-2^10/2^16/2^20', fam:'hash', sk:[132,132,132], pk:[64,64,64], payload:[2500,2692,2820], note:'stateful hash signature; minimal serialized secret key, excluding traversal cache'},
-  {name:'Classic McEliece-348864/460896/6688128/6960119/8192128', fam:'code', sk:[6492,13608,13932,13948,14120], pk:[261120,524160,1044992,1047319,1357824], payload:[96,156,208,194,208], note:'ciphertext; f variants share sizes'},
+  {name:'Classic McEliece-348864/460896/6688128/6960119/8192128', fam:'code', sk:[6492,13608,13932,13948,14120], pk:[261120,524160,1044992,1047319,1357824], payload:[96,156,208,194,208], note:'ciphertext; f variants share sizes; 348864 is listed for comparison but is not recommended here—prefer 6688128 or 6960119 for long-lived security'},
   {name:'HQC-128/192/256', fam:'code', sk:[2321,4602,7333], pk:[2241,4514,7237], payload:[4433,8978,14421], note:'ciphertext'},
   {name:'SQIsign-I/III/V', fam:'iso', sk:[16,24,32], pk:[64,96,128], payload:[148,263,462], note:'signature'},
   {name:'UOV-Ip/III/V', fam:'uov', sk:[237,354,507], pk:[278432,611696,1344528], payload:[128,192,260], note:'signature'},
