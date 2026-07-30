@@ -273,7 +273,7 @@ footer{padding:46px 0 70px;border-top:1px solid var(--line);color:var(--dim);fon
       <div class="hcard">
         <div class="tag">S · was the “†” dagger</div>
         <h3>Sturdiness</h3>
-        <p>Implementation robustness. Can it be built fast <i>and</i> safely? Constant-time discipline, freedom from floating-point fragility, side-channel resistance. Falcon is low-sturdiness (FP Gaussian sampling); SQIsign carries an open constant-time-signing problem; HAWK is essentially the un-daggered Falcon (integer-only); SLH-DSA is maximally sturdy (hash-only, no secret-dependent branching).</p>
+        <p>Implementation robustness. Can it be built fast <i>and</i> safely? Constant-time discipline, freedom from floating-point fragility, side-channel resistance. Falcon is low-sturdiness (FP Gaussian sampling); SQIsign carries an open constant-time-signing problem; SLH-DSA is maximally sturdy (hash-only, no secret-dependent branching).</p>
       </div>
       <div class="hcard">
         <div class="tag">H · was the “‡” mark</div>
@@ -428,10 +428,9 @@ footer{padding:46px 0 70px;border-top:1px solid var(--line);color:var(--dim);fon
         <h3>A tangled map with simpler secret coordinates</h3>
         <p><b>Picture it:</b> the public map describes a space using tangled, awkward directions. A private coordinate system uses short, simple steps, making certain routes or mixtures manageable.</p>
         <details>
-          <summary>Falcon, HAWK and Sntrup</summary>
+          <summary>Falcon and Sntrup</summary>
           <div class="variants">
             <p class="variant-read"><b>Falcon:</b> The secret coordinates help find a very short route to the requested destination. Choosing routes with exactly the right statistical balance is compact and fast, but delicate to implement safely.</p>
-            <p class="variant-read"><b>HAWK:</b> It shares the short-secret-map intuition, but uses discrete, integer-oriented machinery instead of Falcon's delicate floating-point sampling approach.</p>
             <p class="variant-read"><b>Sntrup:</b> A KEM cousin, not a Falcon-like signature. Picture a small secret pattern mixed around a circular track; the private inverse untangles the noisy mixture.</p>
           </div>
         </details>
@@ -539,7 +538,8 @@ footer{padding:46px 0 70px;border-top:1px solid var(--line);color:var(--dim);fon
 
 <footer>
   <div class="wrap">
-    <p>The visible triangle behaves like CAP; the two-tier structure (<code>SKiP</code> + <code>S/H</code>) is the actual insight — it predicts where a too-good scheme is hiding its cost. Standardized set: ML-KEM (FIPS&nbsp;203), ML-DSA (FIPS&nbsp;204), SLH-DSA (FIPS&nbsp;205), FN-DSA/Falcon (draft), stateful hash LMS/XMSS (SP&nbsp;800-208), plus Classic McEliece (ISO), Sntrup (ISO), FrodoKEM (ISO), and HQC (FIPS draft, 2025) as KEMs. Round&nbsp;3 additional-signature candidates (per NIST IR&nbsp;8610): FAEST, HAWK, MAYO, MQOM, QR-UOV, SDitH, SNOVA, SQIsign, UOV. Sizes are representative Level&nbsp;1 figures and vary by parameter set.</p>
+    <p>The visible triangle behaves like CAP; the two-tier structure (<code>SKiP</code> + <code>S/H</code>) is the actual insight — it predicts where a too-good scheme is hiding its cost. Standardized set: ML-KEM (FIPS&nbsp;203), ML-DSA (FIPS&nbsp;204), SLH-DSA (FIPS&nbsp;205), FN-DSA/Falcon (draft), stateful hash LMS/XMSS (SP&nbsp;800-208), plus Classic McEliece (ISO), Sntrup (ISO), FrodoKEM (ISO), and HQC (FIPS draft, 2025) as KEMs. Active Round&nbsp;3 additional-signature candidates: FAEST, MAYO, MQOM, QR-UOV, SDitH, SNOVA, SQIsign, UOV. Sizes are representative Level&nbsp;1 figures and vary by parameter set.</p>
+    <p><b>HAWK update (July 2026):</b> Recent cryptanalytic findings weakened HAWK enough to erase its practical advantages, and its authors withdrew it from the NIST process. It is therefore omitted from the comparisons above.</p>
     <p>Licensed under the <a href="LICENSE">Apache License 2.0</a>.</p>
   </div>
 </footer>
@@ -589,9 +589,6 @@ const D = [
     K:7,P:4,S:4,St:7,H:7,dag:false,
     reads:'Stateful hash-based signature from SP 800-208. Conservative and compact-keyed, with much smaller signatures than SLH-DSA at the cost of state management and a finite signing budget.'},
   // round 3 additional signatures
-  {name:'HAWK', point:'HAWK-512', fam:'lattice', status:'r3', pk:1024, sig:555,
-    K:5,P:6,S:6,St:6,H:4,dag:false,
-    reads:'The un-daggered Falcon: integer-only arithmetic, compact + fast, sturdy. Hidden cost is Hardness \u2014 younger lattice analysis, smaller analyst pool.'},
   {name:'SQIsign', point:'SQIsign-I', fam:'iso', status:'r3', pk:64, sig:148,
     K:7,P:7,S:1,St:1,H:3,dag:true,
     reads:'Smallest K+P in the field (~212 B combined). SKiPs Speed hard (very high latency) and \u2020: constant-time signing still open; thin analyst pool on the endomorphism-ring assumption.'},
@@ -648,7 +645,7 @@ const combined = d=>d.pk+d.sig;
 // rough relative signing cost proxy (lower=faster), hand-ranked since exact cycles vary
 const speedCost = {
   'ML-DSA-44':1.0,'ML-KEM-512':0.85,'Falcon-512':1.5,'SLH-DSA-128f':4.0,'XMSS-2^10':2.8,
-  'HAWK-512':1.05,'SQIsign-I':9.0,'UOV-Ip':0.75,'MAYO-1':1.05,'MAYO-2':1.1,'SNOVA':1.2,
+  'SQIsign-I':9.0,'UOV-Ip':0.75,'MAYO-1':1.05,'MAYO-2':1.1,'SNOVA':1.2,
   'QR-UOV':1.3,'FAEST-128f':6.5,'MQOM':2.6,'SDitH':4.5,'Ed25519':0.45,
   'P-256':0.55,'secp256k1':0.55,'brainpoolP256r1':0.65,'RSA-2048':2.0,
   'Classic McEliece':4.0,'HQC-128':1.15,'sntrup761':0.92,'FrodoKEM-640':3.2
@@ -836,7 +833,6 @@ const SIZE_ROWS = [
   {name:'ML-KEM-512/768/1024', fam:'lattice', sk:[1632,2400,3168], pk:[800,1184,1568], payload:[768,1088,1568], note:'ciphertext'},
   {name:'ML-DSA-44/65/87', fam:'lattice', sk:[2560,4032,4896], pk:[1312,1952,2592], payload:[2420,3309,4627], note:'signature'},
   {name:'Falcon-512/1024', fam:'lattice', sk:[1281,2305], pk:[897,1793], payload:[690,1330], note:'padded signature maximum'},
-  {name:'HAWK-512/1024', fam:'lattice', sk:[184,360], pk:[1024,2440], payload:[555,1221], note:'signature'},
   {name:'Sntrup-653/761/857/953/1013/1277', fam:'lattice', sk:[1518,1763,1999,2254,2417,3059], pk:[994,1158,1322,1505,1623,2067], payload:[897,1039,1184,1349,1455,1847], note:'ciphertext'},
   {name:'FrodoKEM-640/976/1344', fam:'lattice', sk:[19888,31296,43088], pk:[9616,15632,21520], payload:[9720,15744,21632], note:'ciphertext; AES and SHAKE sets have the same sizes'},
   {name:'SLH-DSA-128s/128f/192s/192f/256s/256f', fam:'hash', sk:[64,64,96,96,128,128], pk:[32,32,48,48,64,64], payload:[7856,17088,16224,35664,29792,49856], note:'signature; SHA2 and SHAKE variants share sizes'},
